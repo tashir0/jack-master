@@ -1,7 +1,10 @@
 {
   "name": "jack-master",
   "version": "0.0.0",
-  "description": "discord bot sample on Glitch",
+  "description": "discord bot",
+  "engines": {
+    "node": "14.15.1"
+  },
   "main": "main.js",
   "dependencies": {
     "discord.js": "latest"
