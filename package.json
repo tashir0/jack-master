@@ -3,7 +3,12 @@
   "version": "0.0.0",
   "description": "discord bot",
   "engines": {
-    "node": "14.15.1"
+    "node": "14.15.1",
+    "npm": "7.5.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tashir0/jack-master.git"
   },
   "main": "main.js",
   "dependencies": {
