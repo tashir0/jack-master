@@ -34,17 +34,26 @@ client.on("message", message => {
     message.channel.send(members.join("\n"));
   } else {
     message.reply(
-      "What do you want to know？:\n" + 
-      "`who's first`\n" + 
+      "What do you want to know？:\n" +
+      "`who's first`\n" +
       "`who's facilitator`\n" +
       "`who's member`\n"
     );
   }
 });
 
-if (process.env.DISCORD_BOT_TOKEN == undefined) {
-  console.log("please set ENV: DISCORD_BOT_TOKEN");
-  process.exit(0);
-}
+const checks = [
+  ["DISCORD_BOT_TOKEN", "please set ENV: DISCORD_BOT_TOKEN"],
+  ["TEAM_MEMBERS", "no members in the team. please set ENV: TEAM_MEMBERS in CSV format"]
+];
+(function environmentVariablesCheck() {
+  const lacksAnyMandatoryVariable = checks
+    .filter(([variableName, unsetMessage]) => (process.env[variableName] === undefined))
+    .filter(([variableName, unsetMessage]) => { console.log(unsetMessage); return true; }) // whould be nice if we can peek in javascript
+    .reduce(() => true, false);
+  if (lacksAnyMandatoryVariable) {
+    process.exit(0);
+  }
+})();
 
 client.login(process.env.DISCORD_BOT_TOKEN);
