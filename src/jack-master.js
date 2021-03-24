@@ -13,6 +13,9 @@ module.exports = {
     return result;
   },
   whosFacilitator: function(members) {
+    if (members.length < 3) {
+      return 'At least 3 members are required to start a meeting';
+    }
     const tempMembers = members.concat();
     const facilitator = extractRandomly(tempMembers);
     const timeKeeper = extractRandomly(tempMembers);
