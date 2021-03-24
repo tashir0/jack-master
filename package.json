@@ -14,7 +14,9 @@
   "dependencies": {
     "discord.js": "latest"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "jest": "^26.6.3"
+  },
   "scripts": {
     "start": "node src/main.js",
     "test": "node src/main.js"
