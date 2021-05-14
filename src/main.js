@@ -23,20 +23,24 @@ client.on('message', message => {
   if (!message.mentions.has(client.user)) {
     return;
   }
-  if (message.content.includes('who\'s first')) {
+  if (message.content.includes('order')) {
     const orderedMembers = jackMaster.whosFirst(members);
     message.channel.send(orderedMembers);
-  } else if (message.content.includes('who\'s facilitator')) {
+  } else if (message.content.includes('meeting')) {
     const roles = jackMaster.whosFacilitator(members);
     message.channel.send(roles);
-  } else if (message.content.includes('who\'s member')) {
+  } else if (message.content.includes('random')) {
+    const theOne = jackMaster.pickOne(members);
+    message.channel.send(roles);
+  } else if (message.content.includes('members')) {
     message.channel.send(members.join('\n'));
   } else {
     message.reply(
-        'What do you want to know？:\n' +
-        '`who\'s first`\n' +
-        '`who\'s facilitator`\n' +
-        '`who\'s member`\n'
+        'Available commands:\n' +
+        '`order`\n' +
+        '`meeting`\n' +
+        '`random`\n' +
+        '`members`\n'
     );
   }
 });
@@ -48,8 +52,7 @@ const checks = [
 ];
 (function environmentVariablesCheck() {
   const lacksAnyMandatoryVariable = checks
-  .filter(([variableName, unsetMessage]) => (process.env[variableName]
-      === undefined))
+  .filter(([variableName, unsetMessage]) => (process.env[variableName] === undefined))
   .filter(([variableName, unsetMessage]) => {
     console.log(unsetMessage);
     return true;

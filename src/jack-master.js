@@ -2,7 +2,7 @@ const randomIntOfMax = max => Math.floor(Math.random() * Math.floor(max));
 const extractRandomly = items => items.splice(randomIntOfMax(items.length), 1);
 
 module.exports = {
-  whosFirst: function(members) {
+  whosFirst: (members) => {
     const tempMembers = members.concat();
     const numOfMembers = members.length;
     let result = "";
@@ -21,5 +21,9 @@ module.exports = {
     const timeKeeper = extractRandomly(tempMembers);
     const clerical = extractRandomly(tempMembers);
     return `ファシリテーター: ${facilitator}\nタイム・キーパー: ${timeKeeper}\n書記: ${clerical}`;
+  },
+  pickOne: (members) => {
+    const tempMembers = members.concat();
+    return extractRandomly(tempMembers);
   }
 };
