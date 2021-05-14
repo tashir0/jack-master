@@ -37,10 +37,10 @@ client.on('message', message => {
   } else {
     message.reply(
         'Available commands:\n' +
-        '`order`\n' +
-        '`meeting`\n' +
-        '`random`\n' +
-        '`members`\n'
+        '`order` Lists all team members in a random order\n' +
+        '`meeting` Assigns team members to meeting roles\n' +
+        '`random` Pick one member randomly\n' +
+        '`members` Lists all team members\n'
     );
   }
 });
