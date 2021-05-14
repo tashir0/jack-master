@@ -35,7 +35,7 @@ client.on('message', message => {
   } else if (message.content.includes('members')) {
     message.channel.send(members.join('\n'));
   } else {
-    message.reply(
+    message.channel.send(
         'Available commands:\n' +
         '`order` Lists all team members in a random order\n' +
         '`meeting` Assigns team members to meeting roles\n' +
