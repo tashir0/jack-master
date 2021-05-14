@@ -31,7 +31,7 @@ client.on('message', message => {
     message.channel.send(roles);
   } else if (message.content.includes('random')) {
     const theOne = jackMaster.pickOne(members);
-    message.channel.send(roles);
+    message.channel.send(theOne);
   } else if (message.content.includes('members')) {
     message.channel.send(members.join('\n'));
   } else {
