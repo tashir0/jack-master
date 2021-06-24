@@ -23,7 +23,7 @@ module.exports = {
     } else if (message.content.includes('random')) {
       const theOne = jackMaster.pickOne(candidates);
       message.channel.send(theOne);
-    } else if (message.content.includes('candidates')) {
+    } else if (message.content.includes('members')) {
       message.channel.send(candidates.join('\n'));
     } else {
       message.reply(
