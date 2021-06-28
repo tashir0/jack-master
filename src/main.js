@@ -6,7 +6,6 @@ http.createServer(function (request, response) {
 })
 .listen(3000);
 
-// Discord bot implements
 const discord = require('discord.js');
 const client = new discord.Client();
 
@@ -20,7 +19,7 @@ client.on('ready', message => {
 });
 
 client.on('message', message => {
-  if (!message.mentions.has(client.user)) {
+  if (!message.mentions.has(client.user, { ignoreEveryone: true, ignoreRoles: true })) {
     return;
   }
   if (message.content.includes('order')) {
