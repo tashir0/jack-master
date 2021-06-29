@@ -12,6 +12,7 @@ const config = require('./config.js');
 const members = config.TEAM_MEMBERS;
 
 client.on('message', message => {
+  console.log(message.content);
   if (!message.mentions.has(client.user, { ignoreEveryone: true, ignoreRoles: true })) {
     return;
   }
