@@ -11,21 +11,24 @@ client.on('ready', message => {
 const config = require('./config.js');
 const members = config.TEAM_MEMBERS;
 
+const removeMention = (message) => message.replace(/^<[^>]+>\s/, '');
+
 client.on('message', message => {
   console.log(message.content);
   if (!message.mentions.has(client.user, { ignoreEveryone: true, ignoreRoles: true })) {
     return;
   }
-  if (message.content.startsWith('order')) {
-    const orderedMembers = jackMaster.whosFirst(members);
+  const cleanContent = removeMention(message.content);
+  if (cleanContent.startsWith('order')) {
+    const orderedMembers = jackMaster.order(members);
     message.channel.send(orderedMembers);
-  } else if (message.content.startsWith('meeting')) {
-    const roles = jackMaster.whosFacilitator(members);
+  } else if (cleanContent.startsWith('meeting')) {
+    const roles = jackMaster.assignMeetingRoles(members);
     message.channel.send(roles);
-  } else if (message.content.startsWith('random')) {
+  } else if (cleanContent.startsWith('random')) {
     const theOne = jackMaster.pickOne(members);
     message.channel.send(theOne);
-  } else if (message.content.startsWith('members')) {
+  } else if (cleanContent.startsWith('members')) {
     message.channel.send(members.map(m => m.name).join('\n'));
   } else {
     message.channel.send(
