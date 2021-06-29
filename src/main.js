@@ -1,46 +1,15 @@
 const discord = require('discord.js');
 const client = new discord.Client();
 
-const mandatoryConfigItemNames = [
-  'DISCORD_BOT_TOKEN',
-  'TEAM_MEMBERS'
-];
-(function environmentVariablesCheck() {
-  const lacksMandatoryItem = mandatoryConfigItemNames
-  .filter(configName => (process.env[configName] === undefined))
-  .filter(configName => {
-    console.log(`Please set ${configName}. See README.md for the details.`);
-    return true;
-  }) // would be nice if we can peek in javascript
-  .reduce(() => true, false);
-  if (lacksMandatoryItem) {
-    process.exit(0);
-  }
-})();
-
-const parseTeamMembers = (configValue) => {
-  return configValue.split(',')
-  .map(memberConfig => {
-    const tokens = memberConfig.split(':');
-    return Object.freeze({
-      name: tokens[0],
-      discordId: tokens[1]
-    });
-  });
-};
-
-const members = parseTeamMembers(process.env.TEAM_MEMBERS);
-const config = {
-  DISCORD_BOT_TOKEN: process.env.DISCORD_BOT_TOKEN,
-  TEAM_MEMBERS: members
-};
-
 const jackMaster = require('./jack-master.js');
 
 client.on('ready', message => {
   console.log('bot is ready!');
   client.user.setPresence({activity: {name: 'SAVスプリント'}});
 });
+
+const config = require('./config.js');
+const members = config.TEAM_MEMBERS;
 
 client.on('message', message => {
   if (!message.mentions.has(client.user, { ignoreEveryone: true, ignoreRoles: true })) {
@@ -68,4 +37,4 @@ client.on('message', message => {
   }
 });
 
-client.login(process.env.DISCORD_BOT_TOKEN);
+client.login(config.DISCORD_BOT_TOKEN);
