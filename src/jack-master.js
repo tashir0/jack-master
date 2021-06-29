@@ -1,5 +1,5 @@
 const randomIntOfMax = max => Math.floor(Math.random() * Math.floor(max));
-const extractRandomly = items => items.splice(randomIntOfMax(items.length), 1);
+const extractRandomly = items => items.splice(randomIntOfMax(items.length), 1)[0];
 
 module.exports = {
   whosFirst: (members) => {
