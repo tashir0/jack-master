@@ -15,16 +15,16 @@ client.on('message', message => {
   if (!message.mentions.has(client.user, { ignoreEveryone: true, ignoreRoles: true })) {
     return;
   }
-  if (message.content.includes('order')) {
+  if (message.content.startsWith('order')) {
     const orderedMembers = jackMaster.whosFirst(members);
     message.channel.send(orderedMembers);
-  } else if (message.content.includes('meeting')) {
+  } else if (message.content.startsWith('meeting')) {
     const roles = jackMaster.whosFacilitator(members);
     message.channel.send(roles);
-  } else if (message.content.includes('random')) {
+  } else if (message.content.startsWith('random')) {
     const theOne = jackMaster.pickOne(members);
     message.channel.send(theOne);
-  } else if (message.content.includes('members')) {
+  } else if (message.content.startsWith('members')) {
     message.channel.send(members.map(m => m.name).join('\n'));
   } else {
     message.channel.send(
