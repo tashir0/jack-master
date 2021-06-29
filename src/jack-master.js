@@ -5,9 +5,10 @@ module.exports = (members) => {
 
   return {
 
-    members: () => {
-      return members;
-    },
+    isMasterOf: (memberId) =>
+        members.some(member => member.discordId === memberId),
+
+    members: () => members,
 
     order: () => {
       const tempMembers = members.concat();

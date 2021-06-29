@@ -1,6 +1,7 @@
 const mandatoryConfigItemNames = [
   'DISCORD_BOT_TOKEN',
-  'TEAM_MEMBERS'
+  'TEAM_1_MEMBERS',
+  'TEAM_2_MEMBERS'
 ];
 (function environmentVariablesCheck() {
   const lacksMandatoryItem = mandatoryConfigItemNames
@@ -26,9 +27,11 @@ const parseTeamMembers = (configValue) => {
   });
 };
 
-const members = parseTeamMembers(process.env.TEAM_MEMBERS);
+const team1members = parseTeamMembers(process.env.TEAM_1_MEMBERS);
+const team2members = parseTeamMembers(process.env.TEAM_2_MEMBERS);
 
 module.exports = Object.freeze({
   DISCORD_BOT_TOKEN: process.env.DISCORD_BOT_TOKEN,
-  TEAM_MEMBERS: members
+  TEAM_1_MEMBERS: team1members,
+  TEAM_2_MEMBERS: team2members,
 });

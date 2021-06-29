@@ -7,42 +7,42 @@ client.on('ready', message => {
 });
 
 const config = require('./config.js');
-const members = config.TEAM_MEMBERS;
 const JackMaster = require('./jack-master.js');
-const jackMaster = JackMaster(members)
 
-const removeMention = (message) => message.replace(/^<[^>]+>\s/, '');
+const teams = [config.TEAM_1_MEMBERS, config.TEAM_2_MEMBERS];
+const masters = teams.map(JackMaster);
 
 const commandResolver = {
 
-  order:  {
-    executor: jackMaster.order,
+  order: {
+    executor: 'order',
     formatter: orderedMembers => orderedMembers
-      .map((member, index) => `${index + 1}: ${member.name}`)
-      .join('\n')
+    .map((member, index) => `${index + 1}: ${member.name}`)
+    .join('\n')
   },
 
   meeting: {
-    executor: jackMaster.assignMeetingRoles,
+    executor: 'assignMeetingRoles',
     formatter: roles => `ファシリテーター: ${roles.facilitator.name ?? 'n/a'}\n` +
         `タイム・キーパー: ${roles.timeKeeper.name ?? 'n/a'}\n` +
         `書記: ${roles.clerical.name ?? 'n/a'}`
   },
 
   random: {
-    executor: jackMaster.pickOne,
+    executor: 'pickOne',
     formatter: theOne => theOne.name
   },
 
   members: {
-    executor: jackMaster.members,
+    executor: 'members',
     formatter: members => members.map(m => m.name).join('\n')
   }
 };
 
+const removeMention = (message) => message.replace(/^<[^>]+>\s/, '');
 
 client.on('message', message => {
-  if (!message.mentions.has(client.user, { ignoreEveryone: true, ignoreRoles: true })) {
+  if (!message.mentions.has(client.user, {ignoreEveryone: true, ignoreRoles: true})) {
     return;
   }
 
@@ -52,7 +52,8 @@ client.on('message', message => {
 
   const command = commandResolver[firstWord];
   if (command) {
-    const result = command.executor();
+    const masterOfRequester = masters.find(master => master.isMasterOf(message.author.id));
+    const result = masterOfRequester[command.executor]();
     const response = command.formatter(result);
     message.channel.send(response);
   } else {
