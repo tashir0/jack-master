@@ -21,13 +21,21 @@ client.on('message', message => {
   const cleanContent = removeMention(message.content);
   if (cleanContent.startsWith('order')) {
     const orderedMembers = jackMaster.order(members);
-    message.channel.send(orderedMembers);
+
+    const response = orderedMembers
+    .map((member, index) => `${index + 1}: ${member.name}`)
+    .join('\n');
+
+    message.channel.send(response);
   } else if (cleanContent.startsWith('meeting')) {
     const roles = jackMaster.assignMeetingRoles(members);
-    message.channel.send(roles);
+
+    const response = `ファシリテーター: ${roles.facilitator.name ?? 'n/a'}\nタイム・キーパー: ${roles.timeKeeper.name ?? 'n/a'}\n書記: ${roles.clerical.name ?? 'n/a'}`;
+
+    message.channel.send(response);
   } else if (cleanContent.startsWith('random')) {
     const theOne = jackMaster.pickOne(members);
-    message.channel.send(theOne);
+    message.channel.send(theOne.name);
   } else if (cleanContent.startsWith('members')) {
     message.channel.send(members.map(m => m.name).join('\n'));
   } else {

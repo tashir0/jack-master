@@ -5,28 +5,23 @@ module.exports = {
 
   order: (members) => {
     const tempMembers = members.concat();
-    const numOfMembers = members.length;
-    let result = "";
-    for (let i = 0; i < numOfMembers; i++) {
-      const member = extractRandomly(tempMembers);
-      result += `${i + 1}: ${member.name}\n`;
+    const orderedMembers = [];
+    while (0 < tempMembers.length) {
+      orderedMembers.push(extractRandomly(tempMembers));
     }
-    return result;
+    return orderedMembers;
   },
 
   assignMeetingRoles: (members) => {
-    if (members.length < 3) {
-      return 'At least 3 members are required to start a meeting';
-    }
     const tempMembers = members.concat();
     const facilitator = extractRandomly(tempMembers);
     const timeKeeper = extractRandomly(tempMembers);
     const clerical = extractRandomly(tempMembers);
-    return `ファシリテーター: ${facilitator.name}\nタイム・キーパー: ${timeKeeper.name}\n書記: ${clerical.name}`;
+    return { facilitator, timeKeeper, clerical };
   },
 
   pickOne: (members) => {
     const tempMembers = members.concat();
-    return extractRandomly(tempMembers).name;
+    return extractRandomly(tempMembers);
   }
 };
