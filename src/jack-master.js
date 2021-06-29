@@ -8,7 +8,7 @@ module.exports = {
     let result = "";
     for (let i = 0; i < numOfMembers; i++) {
       const member = extractRandomly(tempMembers);
-      result += `${i + 1}: ${member}\n`;
+      result += `${i + 1}: ${member.name}\n`;
     }
     return result;
   },
@@ -20,10 +20,10 @@ module.exports = {
     const facilitator = extractRandomly(tempMembers);
     const timeKeeper = extractRandomly(tempMembers);
     const clerical = extractRandomly(tempMembers);
-    return `ファシリテーター: ${facilitator}\nタイム・キーパー: ${timeKeeper}\n書記: ${clerical}`;
+    return `ファシリテーター: ${facilitator.name}\nタイム・キーパー: ${timeKeeper.name}\n書記: ${clerical.name}`;
   },
   pickOne: (members) => {
     const tempMembers = members.concat();
-    return extractRandomly(tempMembers);
+    return extractRandomly(tempMembers).name;
   }
 };
