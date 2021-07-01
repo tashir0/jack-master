@@ -1,9 +1,85 @@
 const JackMaster = require('../src/jack-master.js');
 
-const member = (name, id) => ({name, id});
-const twoMembers = [member('Taro'), member('Jiro')];
-const oneMember = [member('Taro')];
+const member = (name, discordId) => ({name, discordId});
+
+const taro = member('Taro');
+const jiro = member('Jiro');
+const hanako = member('Hanako');
+
+const twoMembers = [taro, jiro];
+const oneMember = [hanako];
 const noMember = [];
+
+describe('isMasterOf', () => {
+
+  it.each([1, 3])('should be true when a member with the ID exists in a team', (id) => {
+
+    const memberWithId1 = member('dummy', 1);
+    const memberWithId3 = member('dummy', 3);
+
+    const sut = JackMaster([memberWithId1, memberWithId3]);
+
+    const result = sut.isMasterOf(id);
+
+    expect(result).toBeTruthy();
+  });
+
+  it.each([0, 2, 4])('should be false when a member with the ID does not exist in a team', (id) => {
+
+    const memberWithId1 = member('dummy', 1);
+    const memberWithId3 = member('dummy', 3);
+
+    const sut = JackMaster([memberWithId1, memberWithId3]);
+
+    const result = sut.isMasterOf(id);
+
+    expect(result).toBeFalsy();
+  });
+});
+
+describe('members', () => {
+
+  it('should return all members', () => {
+
+    const sut = JackMaster([taro, hanako, jiro]);
+
+    const result = sut.members();
+
+    expect(result).toStrictEqual([taro, hanako, jiro]);
+  });
+})
+
+describe('order', () => {
+
+  it('should return all members', () => {
+
+    const teamMembers = [taro, hanako, jiro];
+
+    const sut = JackMaster(teamMembers);
+
+    const result = sut.order();
+
+    expect(result.length).toBe(teamMembers.length);
+    expect(result).toContain(taro);
+    expect(result).toContain(hanako);
+    expect(result).toContain(jiro);
+  });
+
+  it('should order randomly every time', () => {
+
+    const teamMembers = [taro, hanako, jiro];
+
+    const sut = JackMaster(teamMembers);
+
+    const firstTime = sut.order();
+    const secondTime = sut.order();
+
+    // FIXME Fails with a certain probability
+    const nameOrderOfFirstTime = firstTime.map(m => m.name).join(",");
+    const nameOrderOfSecondTime = secondTime.map(m => m.name).join(",");
+    expect(nameOrderOfFirstTime).not.toBe(nameOrderOfSecondTime);
+  });
+});
 
 describe('assignMeetingRoles', () => {
 
@@ -22,7 +98,7 @@ describe('assignMeetingRoles', () => {
 
   it('should assign members to each role randomly', () => {
 
-    const sut = JackMaster([member('Taro'), member('Jiro'), member('Hanako')])
+    const sut = JackMaster([taro, jiro, hanako])
 
     const result = sut.assignMeetingRoles();
 
@@ -31,5 +107,18 @@ describe('assignMeetingRoles', () => {
       timeKeeper: {name: expect.stringMatching('Taro|Jiro|Hanako')},
       clerical: {name: expect.stringMatching('Taro|Jiro|Hanako')}
     });
+  });
+});
+
+describe('pickOne', () => {
+
+  it('should return one member randomly', () => {
+
+    const teamMembers = [taro, jiro, hanako];
+    const sut = JackMaster(teamMembers)
+
+    const result = sut.pickOne();
+
+    expect(teamMembers).toContain(result);
   });
 });
