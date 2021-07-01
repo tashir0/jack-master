@@ -8,7 +8,7 @@ module.exports = (members) => {
     isMasterOf: (memberId) =>
         members.some(member => member.discordId === memberId),
 
-    members: () => members,
+    members: () => Object.freeze(members),
 
     order: () => {
       const tempMembers = members.concat();
