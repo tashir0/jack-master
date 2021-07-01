@@ -1,18 +1,35 @@
-const sut = require('../src/jack-master.js');
+const JackMaster = require('../src/jack-master.js');
 
+const member = (name, id) => ({name, id});
+const twoMembers = [member('Taro'), member('Jiro')];
+const oneMember = [member('Taro')];
+const noMember = [];
 
-describe('meeting', () => {
+describe('assignMeetingRoles', () => {
+
   it.each([
-    [],
-    [ 'Taro' ],
-    [ 'Taro', 'Jiro' ]
-  ])('should return error message when members less than 3', (...members) => {
-    const result = sut.whosFacilitator(members);
-    expect(result).toBe('At least 3 members are required to start a meeting');
+    [twoMembers, {clerical: undefined}],
+    [oneMember, {timeKeeper: undefined, clerical: undefined}],
+    [noMember, {facilitator: undefined, timeKeeper: undefined, clerical: undefined}]
+  ])('should some roles be undefined when members less than 3', (members, expectation) => {
+
+    const sut = JackMaster(members);
+
+    const result = sut.assignMeetingRoles();
+
+    expect(result).toMatchObject(expectation);
   });
 
   it('should assign members to each role randomly', () => {
-    const result = sut.whosFacilitator([ 'Taro', 'Jiro', 'Hanako' ]);
-    expect(result).toMatch(/ファシリテーター: (Taro|Jiro|Hanako)\nタイム・キーパー: (Taro|Jiro|Hanako)\n書記: (Taro|Jiro|Hanako)/);
+
+    const sut = JackMaster([member('Taro'), member('Jiro'), member('Hanako')])
+
+    const result = sut.assignMeetingRoles();
+
+    expect(result).toMatchObject({
+      facilitator: {name: expect.stringMatching('Taro|Jiro|Hanako')},
+      timeKeeper: {name: expect.stringMatching('Taro|Jiro|Hanako')},
+      clerical: {name: expect.stringMatching('Taro|Jiro|Hanako')}
+    });
   });
 });
