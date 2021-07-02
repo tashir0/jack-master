@@ -9,8 +9,7 @@ client.on('ready', message => {
 const config = require('./config.js');
 const JackMaster = require('./jack-master.js');
 
-const teams = [config.TEAM_1_MEMBERS, config.TEAM_2_MEMBERS];
-const masters = teams.map(JackMaster);
+const masters = config.TEAMS.map(team => team.members).map(JackMaster);
 
 const commandResolver = {
 

@@ -4,8 +4,9 @@ const setDummyValuesToRequiredConfigsToAvoidProcessExitOnLoad = () => {
   process.env = {
     ...initialEnvValues,
     DISCORD_BOT_TOKEN: 'dummy token',
-    TEAM_1_MEMBERS: '',
-    TEAM_2_MEMBERS: ''
+    TEAM_1: '{}',
+    TEAM_2: '{}',
+    TEAMS: '{}'
   };
 }
 
@@ -16,34 +17,35 @@ beforeEach(() => {
 
 afterAll(() => process.env = initialEnvValues)
 
-describe('TEAM_1_MEMBERS', () => {
+describe('TEAMS', () => {
 
   it('should have member name and Discord ID for all defined users', () => {
 
-    process.env.TEAM_1_MEMBERS = 'Taro:111,Jiro:222,Hanako:333';
+    process.env.TEAMS =
+        '['
+        + '{ "members": ['
+          + '{ "name": "Taro", "discordId": "111" },'
+          + '{ "name": "Jiro", "discordId": "222" },'
+          + '{ "name": "Hanako", "discordId": "333"}'
+        + ']}, '
+        + '{ "members": ['
+        + '{ "name": "John", "discordId": "444" },'
+        + '{ "name": "Jane", "discordId": "555" }'
+        + ']}'
+        + ']';
 
     const sut = require('../src/config.js');
 
-    expect(sut.TEAM_1_MEMBERS).toStrictEqual([
-        { name: 'Taro', discordId: '111'},
-        { name: 'Jiro', discordId: '222'},
-        { name: 'Hanako', discordId: '333'}
-    ]);
-  });
-});
-
-describe('TEAM_2_MEMBERS', () => {
-
-  it('should have member name and Discord ID for all defined users', () => {
-
-    process.env.TEAM_2_MEMBERS = 'Taro:111,Jiro:222,Hanako:333';
-
-    const sut = require('../src/config.js');
-
-    expect(sut.TEAM_2_MEMBERS).toStrictEqual([
-      { name: 'Taro', discordId: '111'},
-      { name: 'Jiro', discordId: '222'},
-      { name: 'Hanako', discordId: '333'}
-    ]);
+    expect(sut.TEAMS[0]).toStrictEqual({
+      members: [
+        {name: 'Taro', discordId: '111'},
+        {name: 'Jiro', discordId: '222'},
+        {name: 'Hanako', discordId: '333'}
+      ]});
+    expect(sut.TEAMS[1]).toStrictEqual({
+      members: [
+        {name: 'John', discordId: '444'},
+        {name: 'Jane', discordId: '555'}
+      ]});
   });
 });
