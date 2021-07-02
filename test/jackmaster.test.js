@@ -16,8 +16,8 @@ describe('isMasterOf', () => {
 
     const memberWithId1 = member('dummy', 1);
     const memberWithId3 = member('dummy', 3);
-
-    const sut = JackMaster([memberWithId1, memberWithId3]);
+    const members = [memberWithId1, memberWithId3];
+    const sut = JackMaster({members});
 
     const result = sut.isMasterOf(id);
 
@@ -28,8 +28,8 @@ describe('isMasterOf', () => {
 
     const memberWithId1 = member('dummy', 1);
     const memberWithId3 = member('dummy', 3);
-
-    const sut = JackMaster([memberWithId1, memberWithId3]);
+    const members = [memberWithId1, memberWithId3];
+    const sut = JackMaster({members});
 
     const result = sut.isMasterOf(id);
 
@@ -41,7 +41,8 @@ describe('members', () => {
 
   it('should return all members', () => {
 
-    const sut = JackMaster([taro, hanako, jiro]);
+    const members = [taro, hanako, jiro];
+    const sut = JackMaster({members});
 
     const result = sut.members();
 
@@ -53,13 +54,13 @@ describe('order', () => {
 
   it('should return all members', () => {
 
-    const teamMembers = [taro, hanako, jiro];
+    const members = [taro, hanako, jiro];
 
-    const sut = JackMaster(teamMembers);
+    const sut = JackMaster({members});
 
     const result = sut.order();
 
-    expect(result.length).toBe(teamMembers.length);
+    expect(result.length).toBe(members.length);
     expect(result).toContain(taro);
     expect(result).toContain(hanako);
     expect(result).toContain(jiro);
@@ -67,9 +68,9 @@ describe('order', () => {
 
   it('should order randomly every time', () => {
 
-    const teamMembers = [taro, hanako, jiro];
+    const members = [taro, hanako, jiro];
 
-    const sut = JackMaster(teamMembers);
+    const sut = JackMaster({members});
 
     const firstTime = sut.order();
     const secondTime = sut.order();
@@ -89,7 +90,7 @@ describe('assignMeetingRoles', () => {
     [noMember, {facilitator: undefined, timeKeeper: undefined, clerical: undefined}]
   ])('should some roles be undefined when members less than 3', (members, expectation) => {
 
-    const sut = JackMaster(members);
+    const sut = JackMaster({members});
 
     const result = sut.assignMeetingRoles();
 
@@ -98,7 +99,8 @@ describe('assignMeetingRoles', () => {
 
   it('should assign members to each role randomly', () => {
 
-    const sut = JackMaster([taro, jiro, hanako])
+    const members = [taro, jiro, hanako];
+    const sut = JackMaster({members})
 
     const result = sut.assignMeetingRoles();
 
@@ -114,11 +116,11 @@ describe('pickOne', () => {
 
   it('should return one member randomly', () => {
 
-    const teamMembers = [taro, jiro, hanako];
-    const sut = JackMaster(teamMembers)
+    const members = [taro, jiro, hanako];
+    const sut = JackMaster({members})
 
     const result = sut.pickOne();
 
-    expect(teamMembers).toContain(result);
+    expect(members).toContain(result);
   });
 });

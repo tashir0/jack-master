@@ -1,7 +1,9 @@
 const randomIntOfMax = max => Math.floor(Math.random() * Math.floor(max));
 const extractRandomly = items => items.splice(randomIntOfMax(items.length), 1)[0];
 
-module.exports = (members) => {
+module.exports = (team, backlogProject) => {
+
+  const members = team.members;
 
   return {
 
