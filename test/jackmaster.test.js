@@ -1,10 +1,11 @@
 const JackMaster = require('../src/jack-master.js');
 
-const member = (name, discordId) => ({name, discordId});
+const member = (name, discordId, backlogId) => ({name, discordId, backlogId});
 
-const taro = member('Taro');
-const jiro = member('Jiro');
-const hanako = member('Hanako');
+const taro = member('Taro', 111, 100);
+const jiro = member('Jiro', 222, 200);
+const hanako = member('Hanako', 333, 300);
+const momoko = member('Momoko', 444, 400);
 
 const twoMembers = [taro, jiro];
 const oneMember = [hanako];
@@ -68,7 +69,7 @@ describe('order', () => {
 
   it('should order randomly every time', () => {
 
-    const members = [taro, hanako, jiro];
+    const members = [taro, hanako, jiro, momoko];
 
     const sut = JackMaster({members});
 
@@ -123,4 +124,91 @@ describe('pickOne', () => {
 
     expect(members).toContain(result);
   });
+});
+
+describe('getOpenPullRequests', () => {
+
+  it('should return no pull request if no request of own team', async () => {
+
+    const repositoryNames = jest.fn().mockResolvedValue(['dummyRepositoryName'])
+    const fetchOpenPullRequestsCreatedBy = jest.fn().mockResolvedValue([]);
+
+    const backlogProject = {
+      repositoryNames,
+      fetchOpenPullRequestsCreatedBy
+    };
+    const sut = JackMaster(
+        { members: [taro]},
+        backlogProject);
+
+    const requests = await sut.getOpenPullRequests();
+
+    expect(requests.length).toBe(0);
+  });
+
+  it('should fetch pull requests of all available repositories', async  () => {
+
+    const repositoryName1 = 'repository1';
+    const repositoryName2 = 'repository2';
+    const repositoryNames = jest.fn()
+    .mockResolvedValueOnce([repositoryName1, repositoryName2]);
+
+    const pullRequest = {
+      createdUser: {id: taro.backlogId },
+      stars: []
+    };
+    const fetchOpenPullRequestsCreatedBy = jest.fn()
+    .mockResolvedValueOnce([pullRequest])
+    .mockResolvedValueOnce([]);
+
+    const backlogProject = {
+      repositoryNames,
+      fetchOpenPullRequestsCreatedBy
+    };
+    const sut = JackMaster(
+        { members: [taro]},
+        backlogProject);
+
+    const requests = await sut.getOpenPullRequests();
+
+    expect(fetchOpenPullRequestsCreatedBy).toBeCalledWith(repositoryName1, [taro.backlogId]);
+    expect(fetchOpenPullRequestsCreatedBy).toBeCalledWith(repositoryName2, [taro.backlogId]);
+    expect(requests.length).toBe(1);
+  });
+
+  it('should return star status of last notified to all', async () => {
+
+    const repositoryNames = jest.fn().mockResolvedValue(['dummyRepositoryName'])
+    const pullRequest = {
+      number: 123,
+      createdUser: {id: taro.backlogId},
+      stars: [
+        {presenter: {id: taro.backlogId}}
+      ],
+      notifications: [
+
+      ]
+    };
+
+    const fetchOpenPullRequestsCreatedBy = jest.fn().mockResolvedValue([pullRequest]);
+
+    const backlogProject = {
+      repositoryNames,
+      fetchOpenPullRequestsCreatedBy
+    };
+    const sut = JackMaster(
+        { members: [taro, jiro, hanako]},
+        backlogProject);
+
+    const requests = await sut.getOpenPullRequests();
+
+    expect(requests.length).toBe(1);
+    expect(requests[0]).toMatchObject({
+      repositoryName: 'dummyRepositoryName',
+      requestNumber: 123,
+      commentUrl: 'https://atw-proj.backlog.jp/git/SAV/dummyRepositoryName/pullRequests/123#commentId',
+      starPresenters: [taro]
+    });
+  });
+
 });

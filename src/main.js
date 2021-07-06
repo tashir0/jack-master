@@ -9,7 +9,14 @@ client.on('ready', message => {
 const config = require('./config.js');
 const JackMaster = require('./jack-master.js');
 
-const masters = config.TEAMS.map(JackMaster);
+const Backlog = require('./backlog.js');
+const backlogProject = Backlog.createProject(
+    'atw-proj.backlog.jp',
+    'SAV',
+    config.BACKLOG_API_KEY
+);
+
+const masters = config.TEAMS.map(team => JackMaster(team, backlogProject));
 
 const commandResolver = {
 
@@ -35,12 +42,19 @@ const commandResolver = {
   members: {
     executor: 'members',
     formatter: members => members.map(m => m.name).join('\n')
+  },
+
+  stars: {
+    executor: 'getOpenPullRequests',
+    formatter: pullRequests => pullRequests
+    .map(pr => `${pr.repositoryName} PR#${pr.requestNumber} stars: ${pr.starPresenters.map(p => p.name).join(', ')}`)
+    .join('\n')
   }
 };
 
 const removeMention = (message) => message.replace(/^<[^>]+>\s/, '');
 
-client.on('message', message => {
+client.on('message', async message => {
   if (!message.mentions.has(client.user, {ignoreEveryone: true, ignoreRoles: true})) {
     return;
   }
@@ -52,7 +66,7 @@ client.on('message', message => {
   const command = commandResolver[firstWord];
   if (command) {
     const masterOfRequester = masters.find(master => master.isMasterOf(message.author.id));
-    const result = masterOfRequester[command.executor]();
+    const result = await masterOfRequester[command.executor]();
     const response = command.formatter(result);
     message.channel.send(response);
   } else {
@@ -61,7 +75,8 @@ client.on('message', message => {
         '`order` Lists all team members in a random order\n' +
         '`meeting` Assigns team members to meeting roles\n' +
         '`random` Pick one member randomly\n' +
-        '`members` Lists all team members\n');
+        '`members` Lists all team members\n' +
+        '`stars` Lists open pull requests for own team\n');
   }
 });
 
