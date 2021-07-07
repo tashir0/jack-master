@@ -46,7 +46,7 @@ module.exports = (team, backlogProject) => {
       };
 
       const notifiedToAllOthers = comment => {
-        const otherMemberIds = members.filter(m => m.backlogId !== String(comment.createdUser.id));
+        const otherMemberIds = members.filter(m => m.backlogId !== String(comment.createdUser.id)).map(m => m.backlogId);
         const notifiedUserIds = comment.notifications.map(notification => String(notification.user.id));
         return otherMemberIds.every(otherMemberId => notifiedUserIds.includes(otherMemberId));
       };
@@ -55,7 +55,7 @@ module.exports = (team, backlogProject) => {
       .filter(lastPushedWithin1Year)
       .map(r => r.name);
 
-      console.debug('Active repository names: %s', activeRepositoryNames);
+      // console.debug('Active repository names: %s', activeRepositoryNames);
 
       const teamUserIds = members.map(m => m.backlogId);
       const pullRequests = [];
@@ -75,7 +75,7 @@ module.exports = (team, backlogProject) => {
           console.warn('Pull request without team notification detected: %s', pullRequest.number);
           pullRequest.starPresenters = []
         } else {
-          const starPresenters = lastCommentNotifiedToAllOthers.stars.map(s => members.find(m => m.backlogId === s.presenter.id));
+          const starPresenters = lastCommentNotifiedToAllOthers.stars.map(s => members.find(m => m.backlogId === String(s.presenter.id)));
           pullRequest.starPresenters = starPresenters;
         }
       }
