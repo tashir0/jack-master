@@ -23,5 +23,5 @@ module.exports = Object.freeze({
   DISCORD_BOT_TOKEN: process.env.DISCORD_BOT_TOKEN,
   TEAMS: Object.freeze(JSON.parse(process.env.TEAMS)),
   BACKLOG_API_KEY: process.env.BACKLOG_API_KEY,
-  LOG_LEVEL: process.env.LOG_LEVEL && 0 // TODO implement simple logger
+  LOG_LEVEL: process.env.LOG_LEVEL && 0
 });

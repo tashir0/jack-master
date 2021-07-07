@@ -24,9 +24,9 @@ describe('repositories', () => {
     const results = await sut.repositories();
 
     expect(results.length).toBe(54);
-    expect(results[0]).toBe({
+    expect(results[0]).toStrictEqual({
       name: 'passenger-v2',
-      lastPushed: expect.any()
+      lastPush: expect.anything()
     });
   })
 });
@@ -39,7 +39,7 @@ describe('listUsers', () => {
 
     const users = await sut.listUsers();
 
-    expect(users.length).toBe(120);
+    expect(users.length).toBe(116);
   });
 });
 

@@ -42,23 +42,3 @@ module.exports = {
     }
   }
 }
-
-// TODO
-// const config = require('./config.js');
-//
-// const LogLevel = Object.freeze({
-//   OFF: 0,
-//   ERROR: 1,
-//   INFO: 2,
-//   WARN: 3,
-//   DEBUG: 4
-// });
-//
-// const logger = (() => {
-//   const nop = () => {};
-//   const error = LogLevel.ERROR <= config.LOG_LEVEL ? console.error : nop;
-//   const info = LogLevel.INFO <= config.LOG_LEVEL ? console.info : nop;
-//   const warn = LogLevel.WARN <= config.LOG_LEVEL ? console.warn : nop;
-//   const debug = LogLevel.DEBUG <= config.LOG_LEVEL ? console.debug : nop;
-//   return {error, info, warn, debug};
-// })();

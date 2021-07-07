@@ -44,9 +44,17 @@ module.exports = (team, backlogProject) => {
         return deltaYear < 1;
       };
 
+      const notifiedToAllOthers = c => {
+        const otherMemberIds = members.filter(m => m.backlogId !== c.createdUser.id);
+        const notifiedUserIds = comment.notifications.map(notification => notification.user.id);
+        return otherMemberIds.every(otherMemberId => notifiedUserIds.includes(otherMemberId));
+      }
+
       const activeRepositoryNames = repositories
       .filter(lastPushedWithin1Year)
       .map(r => r.name);
+
+      console.debug('Active repository names: %s', activeRepositoryNames);
 
       const teamUserIds = members.map(m => m.backlogId);
       const pullRequests = [];
@@ -57,19 +65,26 @@ module.exports = (team, backlogProject) => {
         pullRequests.push(...requestsWithRepositoryName)
       }
 
+      console.debug('Open pull requests: %s', pullRequests.map(p => p.number));
+
       for (pullRequest of pullRequests) {
         const comments = await backlogProject.fetchPullRequestComments(pullRequest.repositoryName, pullRequest.number);
-        const notifiedToAllOthers = c => {};
-        const commentNotifiedToAllOthers = comments.find(notifiedToAllOthers);
+        const lastCommentNotifiedToAllOthers = comments.find(notifiedToAllOthers);
+        if (lastCommentNotifiedToAllOthers === undefined) {
+          console.warn('Pull request without team notification detected: %s', pullRequest.number);
+          pullRequest.starPresenters = []
+        } else {
+          const starPresenters = lastCommentNotifiedToAllOthers.stars.map(s => members.find(m => m.backlogId === s.presenter.id));
+          pullRequest.starPresenters = starPresenters;
+        }
       }
 
       const openPullRequests = pullRequests.map(
           pullRequest => {
-            const starPresenters = pullRequest.stars.map(star => members.find(m => m.backlogId === star.presenter.id));
             return {
               requestNumber: pullRequest.number,
               repositoryName: pullRequest.repositoryName,
-              starPresenters
+              starPresenters: pullRequest.starPresenters
             };
           }
       );
