@@ -45,12 +45,6 @@ module.exports = (team, backlogProject) => {
         return deltaYear < 1;
       };
 
-      const notifiedToAllOthers = comment => {
-        const otherMemberIds = members.filter(m => m.backlogId !== String(comment.createdUser.id)).map(m => m.backlogId);
-        const notifiedUserIds = comment.notifications.map(notification => String(notification.user.id));
-        return otherMemberIds.every(otherMemberId => notifiedUserIds.includes(otherMemberId));
-      };
-
       const activeRepositoryNames = repositories
       .filter(lastPushedWithin1Year)
       .map(r => r.name);
@@ -67,6 +61,13 @@ module.exports = (team, backlogProject) => {
       }
 
       console.debug('Open pull requests: %s', pullRequests.map(p => p.number));
+
+      const notifiedToAllOthers = comment => {
+        const otherMemberIds = members.filter(m => m.backlogId !== String(comment.createdUser.id)).map(m => m.backlogId);
+        const notifiedUserIds = comment.notifications.map(notification => String(notification.user.id));
+        console.debug('other membes: %s, notified members: %s', otherMemberIds, notifiedUserIds);
+        return otherMemberIds.every(otherMemberId => notifiedUserIds.includes(otherMemberId));
+      };
 
       for (pullRequest of pullRequests) {
         const comments = await backlogProject.fetchPullRequestComments(pullRequest.repositoryName, pullRequest.number);
