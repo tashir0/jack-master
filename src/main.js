@@ -46,9 +46,14 @@ const commandResolver = {
 
   stars: {
     executor: 'getOpenPullRequests',
-    formatter: pullRequests => pullRequests
-    .map(pr => `${pr.repositoryName} PR#${pr.requestNumber} stars: ${pr.starPresenters.map(p => p.name).join(', ')}`)
-    .join('\n')
+    formatter: pullRequests => {
+      if (pullRequests.length === 0) {
+        return 'No open pull requests';
+      }
+      return pullRequests
+      .map(pr => `${pr.repositoryName} PR#${pr.requestNumber} stars: ${pr.starPresenters.map(p => p.name).join(', ')}`)
+      .join('\n')
+    }
   }
 };
 
