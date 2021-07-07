@@ -15,16 +15,19 @@ const projectName = 'SAV';
 // ishikawa 8924
 // r-ishizaki 417339
 
-describe('repositoryNames', () => {
+describe('repositories', () => {
 
-  it('should return all repository names of the project', async () => {
+  it('should return all repositories of the project', async () => {
 
     const sut = Backlog.createProject(hostName, projectName, apiKey);
 
-    const results = await sut.repositoryNames();
+    const results = await sut.repositories();
 
     expect(results.length).toBe(54);
-    expect(results[0]).toBe('passenger-v2');
+    expect(results[0]).toBe({
+      name: 'passenger-v2',
+      lastPushed: expect.any()
+    });
   })
 });
 

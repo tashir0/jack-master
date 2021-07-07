@@ -11,6 +11,10 @@ const twoMembers = [taro, jiro];
 const oneMember = [hanako];
 const noMember = [];
 
+const repository = (name, lastPushed) => ({name, lastPushed});
+
+const dummyRepository = repository('dummyRepository', '2999-12-31T23:59:59+09:00');
+
 describe('isMasterOf', () => {
 
   it.each([1, 3])('should be true when a member with the ID exists in a team', (id) => {
@@ -130,11 +134,11 @@ describe('getOpenPullRequests', () => {
 
   it('should return no pull request if no request of own team', async () => {
 
-    const repositoryNames = jest.fn().mockResolvedValue(['dummyRepositoryName'])
+    const repositories = jest.fn().mockResolvedValue([dummyRepository])
     const fetchOpenPullRequestsCreatedBy = jest.fn().mockResolvedValue([]);
 
     const backlogProject = {
-      repositoryNames,
+      repositories,
       fetchOpenPullRequestsCreatedBy
     };
     const sut = JackMaster(
@@ -146,12 +150,15 @@ describe('getOpenPullRequests', () => {
     expect(requests.length).toBe(0);
   });
 
-  it('should fetch pull requests of all available repositories', async  () => {
+  it('should fetch pull requests of repositories pushed within a year', async  () => {
 
     const repositoryName1 = 'repository1';
     const repositoryName2 = 'repository2';
-    const repositoryNames = jest.fn()
-    .mockResolvedValueOnce([repositoryName1, repositoryName2]);
+    const repositories = jest.fn()
+    .mockResolvedValueOnce([
+      repository(repositoryName1, '2021-07-01T00:00:00+09:00'), // FIXME This is current time dependent
+      repository(repositoryName2, '2020-01-01T00:00:00+09:00')
+    ]);
 
     const pullRequest = {
       createdUser: {id: taro.backlogId },
@@ -162,8 +169,9 @@ describe('getOpenPullRequests', () => {
     .mockResolvedValueOnce([]);
 
     const backlogProject = {
-      repositoryNames,
-      fetchOpenPullRequestsCreatedBy
+      repositories,
+      fetchOpenPullRequestsCreatedBy,
+      fetchPullRequestComments: jest.fn().mockResolvedValueOnce([])
     };
     const sut = JackMaster(
         { members: [taro]},
@@ -172,13 +180,12 @@ describe('getOpenPullRequests', () => {
     const requests = await sut.getOpenPullRequests();
 
     expect(fetchOpenPullRequestsCreatedBy).toBeCalledWith(repositoryName1, [taro.backlogId]);
-    expect(fetchOpenPullRequestsCreatedBy).toBeCalledWith(repositoryName2, [taro.backlogId]);
     expect(requests.length).toBe(1);
   });
 
   it('should return star status of last notified to all', async () => {
 
-    const repositoryNames = jest.fn().mockResolvedValue(['dummyRepositoryName'])
+    const repositories = jest.fn().mockResolvedValue([repository('dummyRepository', '2999-12-31T23:59:59+09:00')])
     const pullRequest = {
       number: 123,
       createdUser: {id: taro.backlogId},
@@ -193,8 +200,9 @@ describe('getOpenPullRequests', () => {
     const fetchOpenPullRequestsCreatedBy = jest.fn().mockResolvedValue([pullRequest]);
 
     const backlogProject = {
-      repositoryNames,
-      fetchOpenPullRequestsCreatedBy
+      repositories,
+      fetchOpenPullRequestsCreatedBy,
+      fetchPullRequestComments: jest.fn().mockResolvedValueOnce([])
     };
     const sut = JackMaster(
         { members: [taro, jiro, hanako]},
@@ -204,7 +212,7 @@ describe('getOpenPullRequests', () => {
 
     expect(requests.length).toBe(1);
     expect(requests[0]).toMatchObject({
-      repositoryName: 'dummyRepositoryName',
+      repositoryName: 'dummyRepository',
       requestNumber: 123,
       commentUrl: 'https://atw-proj.backlog.jp/git/SAV/dummyRepositoryName/pullRequests/123#commentId',
       starPresenters: [taro]

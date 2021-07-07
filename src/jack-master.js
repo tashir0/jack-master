@@ -35,11 +35,22 @@ module.exports = (team, backlogProject) => {
     },
 
     getOpenPullRequests: async () => {
-      const repositoryNames = await backlogProject.repositoryNames();
+      const repositories = await backlogProject.repositories();
+
+      const lastPushedWithin1Year = r => {
+        const now = new Date().getTime();
+        const lastPushed = new Date(r.lastPushed).getTime();
+        const deltaYear = (now - lastPushed) / (1000 * 60 * 60 * 24 * 365);
+        return deltaYear < 1;
+      };
+
+      const activeRepositoryNames = repositories
+      .filter(lastPushedWithin1Year)
+      .map(r => r.name);
 
       const teamUserIds = members.map(m => m.backlogId);
       const pullRequests = [];
-      for (repositoryName of repositoryNames) {
+      for (repositoryName of activeRepositoryNames) {
         const repositoryPullRequests = await backlogProject.fetchOpenPullRequestsCreatedBy(repositoryName, teamUserIds);
         const requestsWithRepositoryName = repositoryPullRequests.map(
             pullRequest => ({...pullRequest, repositoryName}));

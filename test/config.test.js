@@ -8,7 +8,7 @@ const setDummyValuesToRequiredConfigsToAvoidProcessExitOnLoad = () => {
     TEAM_2: '{}',
     TEAMS: '{}'
   };
-}
+};
 
 beforeEach(() => {
   setDummyValuesToRequiredConfigsToAvoidProcessExitOnLoad();
