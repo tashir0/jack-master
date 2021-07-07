@@ -47,12 +47,30 @@ const commandResolver = {
   stars: {
     executor: 'getOpenPullRequests',
     formatter: pullRequests => {
+      console.debug(JSON.stringify(pullRequests, null, '\t'));
       if (pullRequests.length === 0) {
-        return 'No open pull requests';
+        return {
+          embed: {
+            title: 'Open pull requests',
+            description: 'No open pull request'
+          }
+        };
       }
-      return pullRequests
-      .map(pr => `${pr.repositoryName} PR#${pr.requestNumber} stars: ${pr.starPresenters.map(p => p.name).join(', ')}`)
-      .join('\n')
+      // return pullRequests
+      // .map(pr => `${pr.repositoryName} PR#${pr.requestNumber} stars: ${pr.starPresenters.map(p => p.name).join(', ')}`)
+      // .join('\n')
+      const fields = pullRequests.map(pr => ({
+        name: `${pr.repositoryName} [PR#${pr.requestNumber}](https://www.google.com)`,
+        value: pr.starPresenters.map(p => p.name).join(', ') || 'None'
+      }));
+      const result = {
+        embed: {
+          title: 'Open pull requests',
+          fields
+        }
+      };
+      console.debug(JSON.stringify(result, null, '\t'));
+      return result;
     }
   }
 };
