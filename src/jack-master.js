@@ -41,15 +41,15 @@ module.exports = (team, backlogProject) => {
         const now = new Date().getTime();
         const lastPushedTime = new Date(r.lastPush).getTime();
         const deltaYear = (now - lastPushedTime) / (1000 * 60 * 60 * 24 * 365);
-        console.log(`last pushed: ${now} - ${lastPushedTime} -> ${deltaYear}`);
+        // console.debug(`last pushed: ${now} - ${lastPushedTime} -> ${deltaYear} years`);
         return deltaYear < 1;
       };
 
       const notifiedToAllOthers = comment => {
-        const otherMemberIds = members.filter(m => m.backlogId !== comment.createdUser.id);
-        const notifiedUserIds = comment.notifications.map(notification => notification.user.id);
+        const otherMemberIds = members.filter(m => m.backlogId !== String(comment.createdUser.id));
+        const notifiedUserIds = comment.notifications.map(notification => String(notification.user.id));
         return otherMemberIds.every(otherMemberId => notifiedUserIds.includes(otherMemberId));
-      }
+      };
 
       const activeRepositoryNames = repositories
       .filter(lastPushedWithin1Year)
