@@ -45,8 +45,8 @@ module.exports = (team, backlogProject) => {
         return deltaYear < 1;
       };
 
-      const notifiedToAllOthers = c => {
-        const otherMemberIds = members.filter(m => m.backlogId !== c.createdUser.id);
+      const notifiedToAllOthers = comment => {
+        const otherMemberIds = members.filter(m => m.backlogId !== comment.createdUser.id);
         const notifiedUserIds = comment.notifications.map(notification => notification.user.id);
         return otherMemberIds.every(otherMemberId => notifiedUserIds.includes(otherMemberId));
       }
