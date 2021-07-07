@@ -39,9 +39,9 @@ module.exports = (team, backlogProject) => {
 
       const lastPushedWithin1Year = r => {
         const now = new Date().getTime();
-        const lastPushed = new Date(r.lastPushed).getTime();
-        const deltaYear = (now - lastPushed) / (1000 * 60 * 60 * 24 * 365);
-        console.log(`last pushed: ${now} - ${lastPushed} -> ${deltaYear}`);
+        const lastPushedTime = new Date(r.lastPush).getTime();
+        const deltaYear = (now - lastPushedTime) / (1000 * 60 * 60 * 24 * 365);
+        console.log(`last pushed: ${now} - ${lastPushedTime} -> ${deltaYear}`);
         return deltaYear < 1;
       };
 
