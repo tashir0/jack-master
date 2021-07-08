@@ -65,7 +65,7 @@ module.exports = (team, backlogProject) => {
       const notifiedToAllOthers = comment => {
         const otherMemberIds = members.filter(m => m.backlogId !== String(comment.createdUser.id)).map(m => m.backlogId);
         const notifiedUserIds = comment.notifications.map(notification => String(notification.user.id));
-        console.debug('other membes: %s, notified members: %s', otherMemberIds, notifiedUserIds);
+        // console.debug('other members: %s, notified members: %s', otherMemberIds, notifiedUserIds);
         return otherMemberIds.every(otherMemberId => notifiedUserIds.includes(otherMemberId));
       };
 
@@ -86,7 +86,8 @@ module.exports = (team, backlogProject) => {
             return {
               requestNumber: pullRequest.number,
               repositoryName: pullRequest.repositoryName,
-              starPresenters: pullRequest.starPresenters
+              starPresenters: pullRequest.starPresenters,
+              url: backlogProject.pullRequestUrl(pullRequest.repositoryName, pullRequest.number)
             };
           }
       );

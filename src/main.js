@@ -56,11 +56,8 @@ const commandResolver = {
           }
         };
       }
-      // return pullRequests
-      // .map(pr => `${pr.repositoryName} PR#${pr.requestNumber} stars: ${pr.starPresenters.map(p => p.name).join(', ')}`)
-      // .join('\n')
       const fields = pullRequests.map(pr => ({
-        name: `${pr.repositoryName} [PR#${pr.requestNumber}](https://www.google.com)`,
+        name: `${pr.repositoryName} [PR#${pr.requestNumber}](${pr.url})`,
         value: pr.starPresenters.map(p => p.name).join(', ') || 'None'
       }));
       const result = {

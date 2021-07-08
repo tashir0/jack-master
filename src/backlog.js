@@ -38,7 +38,9 @@ module.exports = {
       fetchPullRequestComments: (repositoryName, pullRequestId) => fetchAsJson(
           `${apiBaseProjectUrl}/git/repositories/${repositoryName}/pullRequests/${pullRequestId}/comments?apiKey=${apiKey}`),
 
-      listUsers: () => fetchAsJson(`${apiBaseUrl}/users?apiKey=${apiKey}`)
+      listUsers: () => fetchAsJson(`${apiBaseUrl}/users?apiKey=${apiKey}`),
+
+      pullRequestUrl: (repositoryName, requestNumber) => `https://${hostName}/git/${projectName}/${repositoryName}/pullRequests/${requestNumber}`
     }
   }
 }
