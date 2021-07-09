@@ -47,7 +47,7 @@ const commandResolver = {
   stars: {
     executor: 'getOpenPullRequests',
     formatter: pullRequests => {
-      console.debug(JSON.stringify(pullRequests, null, '\t'));
+      // console.debug(JSON.stringify(pullRequests, null, '\t'));
       if (pullRequests.length === 0) {
         return {
           embed: {
@@ -57,8 +57,8 @@ const commandResolver = {
         };
       }
       const fields = pullRequests.map(pr => ({
-        name: `${pr.repositoryName} [PR#${pr.requestNumber}](${pr.url})`,
-        value: pr.starPresenters.map(p => p.name).join(', ') || 'None'
+        name: pr.repositoryName,
+        value: `[PR#${pr.requestNumber}](${pr.url}) ` + (pr.starPresenters.map(p => p.name).join(', ') || 'None')
       }));
       const result = {
         embed: {
