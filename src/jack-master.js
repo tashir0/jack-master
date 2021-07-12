@@ -90,6 +90,7 @@ module.exports = (team, backlogProject) => {
           pullRequest => {
             return {
               ticketNumber: pullRequest.ticketNumber,
+              ticketUrl: backlogProject.ticketUrl(pullRequest.ticketNumber),
               requestNumber: pullRequest.number,
               repositoryName: pullRequest.repositoryName,
               starPresenters: pullRequest.starPresenters,

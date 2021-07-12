@@ -66,3 +66,17 @@ describe.skip('fetchPullRequestComments', () => {
     // TODO
   });
 });
+
+describe('ticketUrl', () => {
+
+  it('should return ticket URL', () => {
+
+    const hostName = 'atw-proj.backlog.jp';
+
+    const sut = Backlog.createProject(hostName, null, null);
+
+    const result = sut.ticketUrl('issueId');
+
+    expect(result).toBe(`https://atw-proj.backlog.jp/view/issueId`)
+  });
+});

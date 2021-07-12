@@ -40,7 +40,9 @@ module.exports = {
 
       listUsers: () => fetchAsJson(`${apiBaseUrl}/users?apiKey=${apiKey}`),
 
-      pullRequestUrl: (repositoryName, requestNumber) => `https://${hostName}/git/${projectName}/${repositoryName}/pullRequests/${requestNumber}`
+      pullRequestUrl: (repositoryName, requestNumber) => `https://${hostName}/git/${projectName}/${repositoryName}/pullRequests/${requestNumber}`,
+
+      ticketUrl: (ticketNumber) => `https://${hostName}/view/${ticketNumber}`
     }
   }
 }

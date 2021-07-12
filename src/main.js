@@ -58,7 +58,7 @@ const commandResolver = {
       }
       const fields = pullRequests.map(pr => ({
         name: pr.repositoryName,
-        value: `${pr.ticketNumber} [PR#${pr.requestNumber}](${pr.url}) ` + (pr.starPresenters.map(p => p.name).join(', ') || 'None')
+        value: `[${pr.ticketNumber}](${pr.ticketUrl}) [PR#${pr.requestNumber}](${pr.url}) ` + (pr.starPresenters.map(p => p.name).join(', ') || 'None')
       }));
       const result = {
         embed: {
