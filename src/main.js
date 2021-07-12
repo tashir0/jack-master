@@ -58,7 +58,7 @@ const commandResolver = {
       }
       const fields = pullRequests.map(pr => ({
         name: pr.repositoryName,
-        value: `[PR#${pr.requestNumber}](${pr.url}) ` + (pr.starPresenters.map(p => p.name).join(', ') || 'None')
+        value: `${pr.ticketNumber} [PR#${pr.requestNumber}](${pr.url}) ` + (pr.starPresenters.map(p => p.name).join(', ') || 'None')
       }));
       const result = {
         embed: {
@@ -66,7 +66,7 @@ const commandResolver = {
           fields
         }
       };
-      console.debug(JSON.stringify(result, null, '\t'));
+      // console.debug(JSON.stringify(result, null, '\t'));
       return result;
     }
   }

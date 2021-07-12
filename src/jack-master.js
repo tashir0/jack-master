@@ -55,8 +55,13 @@ module.exports = (team, backlogProject) => {
       const pullRequests = [];
       for (repositoryName of activeRepositoryNames) {
         const repositoryPullRequests = await backlogProject.fetchOpenPullRequestsCreatedBy(repositoryName, teamUserIds);
+        // TODO following mapping is to be moved to BacklogProject
         const requestsWithRepositoryName = repositoryPullRequests.map(
-            pullRequest => ({...pullRequest, repositoryName}));
+            pullRequest => ({
+              number: pullRequest.number,
+              repositoryName,
+              ticketNumber: pullRequest.issue?.issueKey
+            }));
         pullRequests.push(...requestsWithRepositoryName)
       }
 
@@ -84,6 +89,7 @@ module.exports = (team, backlogProject) => {
       const openPullRequests = pullRequests.map(
           pullRequest => {
             return {
+              ticketNumber: pullRequest.ticketNumber,
               requestNumber: pullRequest.number,
               repositoryName: pullRequest.repositoryName,
               starPresenters: pullRequest.starPresenters,
