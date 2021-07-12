@@ -37,16 +37,16 @@ module.exports = (team, backlogProject) => {
     getOpenPullRequests: async () => {
       const repositories = await backlogProject.repositories();
 
-      const lastPushedWithin1Year = r => {
+      const lastPushedWithin3Months = r => {
         const now = new Date().getTime();
         const lastPushedTime = new Date(r.lastPush).getTime();
-        const deltaYear = (now - lastPushedTime) / (1000 * 60 * 60 * 24 * 365);
+        const threeMonthsInMillisecs = 1000 * 60 * 60 * 24 * 31 * 3;
         // console.debug(`last pushed: ${now} - ${lastPushedTime} -> ${deltaYear} years`);
-        return deltaYear < 1;
+        return (now - lastPushedTime) < threeMonthsInMillisecs;
       };
 
       const activeRepositoryNames = repositories
-      .filter(lastPushedWithin1Year)
+      .filter(lastPushedWithin3Months)
       .map(r => r.name);
 
       // console.debug('Active repository names: %s', activeRepositoryNames);
