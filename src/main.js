@@ -56,10 +56,16 @@ const commandResolver = {
           }
         };
       }
-      const fields = pullRequests.map(pr => ({
-        name: pr.repositoryName,
-        value: `[${pr.ticketNumber}](${pr.ticketUrl}) [PR#${pr.requestNumber}](${pr.url}) ` + (pr.starPresenters.map(p => p.name).join(', ') || 'None')
-      }));
+      const groupedByTicket =  groupBy(pullRequests, pr => (pr.ticketNumber ?? 'No ticket'));
+      const starPresentersToCsv = presenters => presenters.map(p => p.name).join(',') || 'None';
+      const fields = Object.entries(groupedByTicket)
+        .map(group => {
+          const [ ticketNumber, pullRequests ] = group;
+          return {
+            name: ticketNumber,
+            value: pullRequests.map(pr => `${pr.repositoryName} [PR#${pr.requestNumber}](${pr.url}) ${starPresentersToCsv(pr.starPresenters)}\n`)
+          }
+        });
       const result = {
         embed: {
           title: 'Open pull requests',
@@ -70,6 +76,15 @@ const commandResolver = {
       return result;
     }
   }
+};
+
+const groupBy = (array, getGroupKey) => {
+  return array.reduce((accumulator, currentValue) => {
+    const groupKey = getGroupKey(currentValue);
+    const  group = accumulator[groupKey] || (accumulator[groupKey] = []);
+    group.push(currentValue);
+    return accumulator;
+  }, {});
 };
 
 const removeMention = (message) => message.replace(/^<[^>]+>\s/, '');
