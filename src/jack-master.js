@@ -5,6 +5,8 @@ module.exports = (team, backlogProject) => {
 
   const members = team.members;
 
+  const findMemberByBacklogId = id => members.find(m => m.backlogId === String(id));
+
   return {
 
     isMasterOf: (memberId) =>
@@ -60,7 +62,8 @@ module.exports = (team, backlogProject) => {
             pullRequest => ({
               number: pullRequest.number,
               repositoryName,
-              ticketNumber: pullRequest.issue?.issueKey
+              ticketNumber: pullRequest.issue?.issueKey,
+              createdUser: pullRequest.createdUser
             }));
         pullRequests.push(...requestsWithRepositoryName)
       }
@@ -81,7 +84,7 @@ module.exports = (team, backlogProject) => {
           console.warn('Pull request without team notification detected: %s', pullRequest.number);
           pullRequest.starPresenters = []
         } else {
-          const starPresenters = lastCommentNotifiedToAllOthers.stars.map(s => members.find(m => m.backlogId === String(s.presenter.id)));
+          const starPresenters = lastCommentNotifiedToAllOthers.stars.map(s => findMemberByBacklogId(s.presenter.id));
           pullRequest.starPresenters = starPresenters;
         }
       }
@@ -91,6 +94,7 @@ module.exports = (team, backlogProject) => {
             return {
               ticketNumber: pullRequest.ticketNumber,
               ticketUrl: backlogProject.ticketUrl(pullRequest.ticketNumber),
+              createdUser: findMemberByBacklogId(pullRequest.createdUser.id),
               requestNumber: pullRequest.number,
               repositoryName: pullRequest.repositoryName,
               starPresenters: pullRequest.starPresenters,
