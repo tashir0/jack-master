@@ -57,14 +57,14 @@ const commandResolver = {
         };
       }
       const groupedByTicket =  groupBy(pullRequests, pr => (pr.ticketNumber ?? 'No ticket'));
-      const starPresentersToCsv = presenters => presenters.map(p => p.name).join(',') || 'no one';
+      const starPresentersToCsv = presenters => presenters.map(p => p.name).join(', ') || 'no one';
       const fields = Object.entries(groupedByTicket)
-        .map(group => {
+        .flatMap(group => {
           const [ ticketNumber, pullRequests ] = group;
-          return {
+          return pullRequests.map(pr => ({
             name: ticketNumber,
-            value: pullRequests.map(pr => `${pr.repositoryName} [PR#${pr.requestNumber}](${pr.url}) requested by ${pr.createdUser.name} star presented by ${starPresentersToCsv(pr.starPresenters)}\n`)
-          }
+            value: `${pr.repositoryName} [PR#${pr.requestNumber}](${pr.url}) requested by ${pr.createdUser.name} star presented by ${starPresentersToCsv(pr.starPresenters)}`
+          }));
         });
       const result = {
         embed: {
