@@ -17,7 +17,7 @@ module.exports = {
       const response = await fetch(url);
       const text = await response.text();
       const json = JSON.parse(text);
-      console.debug(`${new Date()} ${url}\n${JSON.stringify(json, null, "\t")}`);
+      // console.debug(`${new Date()} ${url}\n${JSON.stringify(json, null, "\t")}`);
       return json;
     };
     const arrayParams = (name, values) => values.map(value => `${name}[]=${value}`).join('&');
