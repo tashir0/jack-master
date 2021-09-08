@@ -62,7 +62,7 @@ const commandResolver = {
         .flatMap(group => {
           const [ ticketNumber, pullRequests ] = group;
           return pullRequests.map(pr => ({
-            name: ticketNumber,
+            name: `${ticketNumber} ${pr.title}`,
             value: `${pr.repositoryName} [PR#${pr.requestNumber}](${pr.url}) requested by ${pr.createdUser.name} star presented by ${starPresentersToCsv(pr.starPresenters)}`
           }));
         });

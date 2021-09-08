@@ -17,7 +17,7 @@ module.exports = {
       const response = await fetch(url);
       const text = await response.text();
       const json = JSON.parse(text);
-      // console.debug(`${new Date()} ${url}\n${JSON.stringify(json, null, "\t")}`);
+      console.debug(`${new Date()} ${url}\n${JSON.stringify(json, null, "\t")}`);
       return json;
     };
     const arrayParams = (name, values) => values.map(value => `${name}[]=${value}`).join('&');
@@ -29,11 +29,20 @@ module.exports = {
         lastPush: repository.pushedAt
       }))),
 
-      fetchOpenPullRequestsCreatedBy: (repositoryName, createdUserIds) => fetchAsJson(
-          `${apiBaseProjectUrl}/git/repositories/${repositoryName}/pullRequests?` +
-          `apiKey=${apiKey}&` +
-          `statusId[]=${pullRequestStatusOpen}&` +
-          `${arrayParams('createdUserId', createdUserIds)}`),
+      fetchOpenPullRequestsCreatedBy: async (repositoryName, createdUserIds) => {
+        const backlogPullRequests = await fetchAsJson(
+            `${apiBaseProjectUrl}/git/repositories/${repositoryName}/pullRequests?` +
+            `apiKey=${apiKey}&` +
+            `statusId[]=${pullRequestStatusOpen}&` +
+            `${arrayParams('createdUserId', createdUserIds)}`);
+        return backlogPullRequests.map(pr => ({
+          title: pr.summary,
+          number: pr.number,
+          repositoryName,
+          ticketNumber: pr.issue?.issueKey,
+          createdUser: pr.createdUser
+        }));
+      },
 
       fetchPullRequestComments: (repositoryName, pullRequestId) => fetchAsJson(
           `${apiBaseProjectUrl}/git/repositories/${repositoryName}/pullRequests/${pullRequestId}/comments?apiKey=${apiKey}`),
