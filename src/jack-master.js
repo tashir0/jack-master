@@ -63,7 +63,9 @@ module.exports = (team, backlogProject) => {
       console.debug('Open pull requests: %s', pullRequests.map(p => p.number));
 
       const notifiedToAllOthers = comment => {
-        const otherMemberIds = members.filter(m => m.backlogId !== String(comment.createdUser.id)).map(m => m.backlogId);
+        const otherMemberIds = members
+        .filter(m => m.backlogId !== String(comment.createdUser.id))
+        .map(m => m.backlogId);
         const notifiedUserIds = comment.notifications.map(notification => String(notification.user.id));
         // console.debug('other members: %s, notified members: %s', otherMemberIds, notifiedUserIds);
         return otherMemberIds.every(otherMemberId => notifiedUserIds.includes(otherMemberId));
@@ -76,7 +78,9 @@ module.exports = (team, backlogProject) => {
           console.warn('Pull request without team notification detected: %s', pullRequest.number);
           pullRequest.starPresenters = []
         } else {
-          const starPresenters = lastCommentNotifiedToAllOthers.stars.map(s => findMemberByBacklogId(s.presenter.id));
+          const starPresenters = lastCommentNotifiedToAllOthers.stars
+          .map(s => findMemberByBacklogId(s.presenter.id))
+          .filter(s => !!s); // star may be presented by someone not a team member
           pullRequest.starPresenters = starPresenters;
         }
       }
