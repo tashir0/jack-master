@@ -82,6 +82,7 @@ module.exports = (team, backlogProject) => {
           .map(s => findMemberByBacklogId(s.presenter.id))
           .filter(s => !!s); // star may be presented by someone not a team member
           pullRequest.starPresenters = starPresenters;
+          pullRequest.lastNotifier = findMemberByBacklogId(lastCommentNotifiedToAllOthers.createdUser.id);
         }
       }
 
@@ -94,6 +95,7 @@ module.exports = (team, backlogProject) => {
               repositoryName: pullRequest.repositoryName,
               requestNumber: pullRequest.number,
               title: pullRequest.title,
+              lastNotifier: pullRequest.lastNotifier,
               starPresenters: pullRequest.starPresenters,
               url: backlogProject.pullRequestUrl(pullRequest.repositoryName, pullRequest.number)
             };

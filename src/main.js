@@ -65,7 +65,7 @@ const commandResolver = {
             const shortenedTitle = pr.title.length < 28 ? pr.title : `${pr.title.substring(0, 28)}...`; // To avoid line break
             return {
               name: `${ticketNumber} ${shortenedTitle}`,
-              value: `${pr.repositoryName} [PR#${pr.requestNumber}](${pr.url}) requested by ${pr.createdUser.name} star presented by ${starPresentersToCsv(pr.starPresenters)}`
+              value: `${pr.repositoryName} [PR#${pr.requestNumber}](${pr.url}) requested by ${pr.createdUser.name} last notifiedy by ${pr.lastNotifier.name} star presented by ${starPresentersToCsv(pr.starPresenters)}`
             };
           });
         });
