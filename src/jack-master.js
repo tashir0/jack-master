@@ -75,7 +75,7 @@ module.exports = (team, backlogProject) => {
         const comments = await backlogProject.fetchPullRequestComments(pullRequest.repositoryName, pullRequest.number);
         const lastCommentNotifiedToAllOthers = comments.find(notifiedToAllOthers);
         if (lastCommentNotifiedToAllOthers === undefined) {
-          console.warn('Pull request without team notification detected: %s', pullRequest.number);
+          console.warn('Pull request without team notification detected: %s PR#%s', pullRequest.repositoryName, pullRequest.number);
           pullRequest.starPresenters = []
         } else {
           const starPresenters = lastCommentNotifiedToAllOthers.stars
