@@ -63,7 +63,7 @@ const commandResolver = {
           const [ ticketNumber, pullRequests ] = group;
           return pullRequests.map(pr => {
             const shortenedTitle = pr.title.length < 28 ? pr.title : `${pr.title.substring(0, 28)}...`; // To avoid line break
-            const notification =  pr.lastNotifier ? `, last notifiedy by ${pr.lastNotifier.name}` : ` not notified`;
+            const notification =  pr.lastNotifier ? `, last notified by ${pr.lastNotifier.name}` : ` not notified`;
             return {
               name: `${ticketNumber} ${shortenedTitle}`,
               value: `${pr.repositoryName} [PR#${pr.requestNumber}](${pr.url}) requested by ${pr.createdUser.name}${notification}, star presented by ${starPresentersToCsv(pr.starPresenters)}`
