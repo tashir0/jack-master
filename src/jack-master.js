@@ -7,6 +7,15 @@ module.exports = (team, backlogProject) => {
 
   const findMemberByBacklogId = id => members.find(m => m.backlogId === String(id));
 
+  const order = () => {
+    const tempMembers = members.concat();
+    const orderedMembers = [];
+    while (0 < tempMembers.length) {
+      orderedMembers.push(extractRandomly(tempMembers));
+    }
+    return orderedMembers;
+  };
+
   return {
 
     isMasterOf: (memberId) =>
@@ -14,14 +23,7 @@ module.exports = (team, backlogProject) => {
 
     members: () => Object.freeze(members),
 
-    order: () => {
-      const tempMembers = members.concat();
-      const orderedMembers = [];
-      while (0 < tempMembers.length) {
-        orderedMembers.push(extractRandomly(tempMembers));
-      }
-      return orderedMembers;
-    },
+    order,
 
     assignMeetingRoles: () => {
       const tempMembers = members.concat();
@@ -103,6 +105,16 @@ module.exports = (team, backlogProject) => {
       );
 
       return openPullRequests;
+    },
+
+    pair: () => {
+      const randomlyOrderedMembers = order();
+      const pairs = [];
+      for (let i = 0; i < randomlyOrderedMembers.length; i += 2) {
+        const pair = randomlyOrderedMembers.slice(i, i + 2);
+        pairs.push(pair);
+      }
+      return pairs;
     }
   };
 };

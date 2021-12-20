@@ -218,5 +218,21 @@ describe('getOpenPullRequests', () => {
       starPresenters: [taro]
     });
   });
+});
 
+describe('pair', () => {
+
+  it('should pair team members', () => {
+
+    const sut = JackMaster(
+        { members: [taro, jiro, hanako]},
+        null);
+
+    const pairs = sut.pair();
+    expect(pairs.length).toBe(2);
+    const firstPair = pairs[0];
+    expect(firstPair.length).toBe(2);
+    const secondPair = pairs[1];
+    expect(secondPair.length).toBe(1);
+  });
 });

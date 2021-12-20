@@ -18,6 +18,40 @@ const backlogProject = Backlog.createProject(
 
 const masters = config.TEAMS.map(team => JackMaster(team, backlogProject));
 
+const formatPullRequests = pullRequests => {
+  // console.debug(JSON.stringify(pullRequests, null, '\t'));
+  if (pullRequests.length === 0) {
+    return {
+      embed: {
+        title: 'Open pull requests',
+        description: 'No open pull request'
+      }
+    };
+  }
+  const groupedByTicket =  groupBy(pullRequests, pr => (pr.ticketNumber ?? 'No ticket'));
+  const starPresentersToCsv = presenters => presenters.map(p => p.name).join(', ') || 'no one';
+  const fields = Object.entries(groupedByTicket)
+  .flatMap(group => {
+    const [ ticketNumber, pullRequests ] = group;
+    return pullRequests.map(pr => {
+      const shortenedTitle = pr.title.length < 28 ? pr.title : `${pr.title.substring(0, 28)}...`; // To avoid line break
+      const notification =  pr.lastNotifier ? `, last notified by ${pr.lastNotifier.name}` : ` not notified`;
+      return {
+        name: `${ticketNumber} ${shortenedTitle}`,
+        value: `${pr.repositoryName} [PR#${pr.requestNumber}](${pr.url}) \nrequested by ${pr.createdUser.name}${notification}, star presented by ${starPresentersToCsv(pr.starPresenters)}`
+      };
+    });
+  });
+  const result = {
+    embed: {
+      title: 'Open pull requests',
+      fields
+    }
+  };
+  // console.debug(JSON.stringify(result, null, '\t'));
+  return result;
+};
+
 const commandResolver = {
 
   order: {
@@ -46,39 +80,14 @@ const commandResolver = {
 
   stars: {
     executor: 'getOpenPullRequests',
-    formatter: pullRequests => {
-      // console.debug(JSON.stringify(pullRequests, null, '\t'));
-      if (pullRequests.length === 0) {
-        return {
-          embed: {
-            title: 'Open pull requests',
-            description: 'No open pull request'
-          }
-        };
-      }
-      const groupedByTicket =  groupBy(pullRequests, pr => (pr.ticketNumber ?? 'No ticket'));
-      const starPresentersToCsv = presenters => presenters.map(p => p.name).join(', ') || 'no one';
-      const fields = Object.entries(groupedByTicket)
-        .flatMap(group => {
-          const [ ticketNumber, pullRequests ] = group;
-          return pullRequests.map(pr => {
-            const shortenedTitle = pr.title.length < 28 ? pr.title : `${pr.title.substring(0, 28)}...`; // To avoid line break
-            const notification =  pr.lastNotifier ? `, last notified by ${pr.lastNotifier.name}` : ` not notified`;
-            return {
-              name: `${ticketNumber} ${shortenedTitle}`,
-              value: `${pr.repositoryName} [PR#${pr.requestNumber}](${pr.url}) \nrequested by ${pr.createdUser.name}${notification}, star presented by ${starPresentersToCsv(pr.starPresenters)}`
-            };
-          });
-        });
-      const result = {
-        embed: {
-          title: 'Open pull requests',
-          fields
-        }
-      };
-      // console.debug(JSON.stringify(result, null, '\t'));
-      return result;
-    }
+    formatter: formatPullRequests
+  },
+
+  pair: {
+    executor: 'pair',
+    formatter: pairs => pairs
+    .map((pair, index) => `${index + 1}: ${pair[0].name} & ${pair[1].name}`)
+    .join('\n')
   }
 };
 
@@ -115,7 +124,8 @@ client.on('message', async message => {
         '`meeting` Assigns team members to meeting roles\n' +
         '`random` Pick one member randomly\n' +
         '`members` Lists all team members\n' +
-        '`stars` Lists open pull requests for own team\n');
+        '`stars` Lists open pull requests for own team\n' +
+        '`pair` Pair team members randomly');
   }
 });
 
