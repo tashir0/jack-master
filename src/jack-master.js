@@ -115,6 +115,25 @@ module.exports = (team, backlogProject) => {
         pairs.push(pair);
       }
       return pairs;
+    },
+
+    listTodos: async (discordClient, message) => {
+      try {
+        const messages = await message.channel.messages.fetch({ limit: 100 });
+        const messagesInPostedOrder = [...messages].reverse();
+        return messagesInPostedOrder
+        .map(([_, message]) => message)
+        .filter(hasTodoReaction)
+        .filter(m => !hasDoneReaction(m))
+        .map(m => m.content);
+      } catch (e) {
+        console.error(e);
+        return [];
+      }
     }
   };
 };
+
+const reactionCheckerFor = (id) => (message) => !!message.reactions?.cache.find(r => r.emoji.id === id);
+const hasTodoReaction = reactionCheckerFor('908654943441936425');
+const hasDoneReaction = reactionCheckerFor('905717622421729301');

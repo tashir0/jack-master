@@ -88,13 +88,23 @@ const commandResolver = {
     formatter: pairs => pairs
     .map((pair, index) => `${index + 1}: ${pair[0].name} & ${pair[1].name}`)
     .join('\n')
+  },
+
+  todo: {
+    executor: 'listTodos',
+    formatter: (todoMessages) => {
+      if (todoMessages.length === 0) {
+        return 'No TODOs';
+      }
+      return 'TODO:\n' + todoMessages.join('\n');
+    }
   }
 };
 
 const groupBy = (array, getGroupKey) => {
   return array.reduce((accumulator, currentValue) => {
     const groupKey = getGroupKey(currentValue);
-    const  group = accumulator[groupKey] || (accumulator[groupKey] = []);
+    const group = accumulator[groupKey] || (accumulator[groupKey] = []);
     group.push(currentValue);
     return accumulator;
   }, {});
@@ -114,18 +124,19 @@ client.on('message', async message => {
   const command = commandResolver[firstWord];
   if (command) {
     const masterOfRequester = masters.find(master => master.isMasterOf(message.author.id));
-    const result = await masterOfRequester[command.executor]();
+    const result = await masterOfRequester[command.executor](client, message);
     const response = command.formatter(result);
     message.channel.send(response);
   } else {
     message.channel.send(
-        'Available commands:\n' +
-        '`order` Lists all team members in a random order\n' +
-        '`meeting` Assigns team members to meeting roles\n' +
-        '`random` Pick one member randomly\n' +
-        '`members` Lists all team members\n' +
-        '`stars` Lists open pull requests for own team\n' +
-        '`pair` Pair team members randomly');
+        `Available commands:
+        \`order\` Lists all team members in a random order
+        \`meeting\` Assigns team members to meeting roles
+        \`random\` Pick one member randomly
+        \`members\` Lists all team members
+        \`stars\` Lists open pull requests for own team
+        \`pair\` Pair team members randomly
+        \`todo\` Lists messages with \`TODO\` but without \`済\` stamp within the channel. Looks up latest 100 messages`);
   }
 });
 
