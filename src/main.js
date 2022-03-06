@@ -86,7 +86,11 @@ const commandResolver = {
   pair: {
     executor: 'pair',
     formatter: pairs => pairs
-    .map((pair, index) => `${index + 1}: ${pair[0].name} & ${pair[1].name}`)
+    .map((pair, index) => {
+      const pairNumber = index + 1;
+      const pairedMembers = pair[0].name + (pair.length === 2 ? ` & ${pair[1].name}` : '')
+      return `${pairNumber}: ${pairedMembers}`;
+    })
     .join('\n')
   },
 
