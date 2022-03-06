@@ -125,7 +125,10 @@ module.exports = (team, backlogProject) => {
         .map(([_, message]) => message)
         .filter(hasTodoReaction)
         .filter(m => !hasDoneReaction(m))
-        .map(m => m.content);
+        .map(m => ({
+          content: m.content,
+          url: m.url
+        }));
       } catch (e) {
         console.error(e);
         return [];

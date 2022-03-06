@@ -52,6 +52,25 @@ const formatPullRequests = pullRequests => {
   return result;
 };
 
+const formatTodos = (todoMessages) => {
+  if (todoMessages.length === 0) {
+    return {
+      embed: {
+        title: 'TODO',
+        description: 'No TODOs left'
+      }
+    };
+  }
+  return {
+    embed : {
+      fields: [{
+        name: 'TODO',
+        value: todoMessages.map(m => `[${m.content}](${m.url})`).join('\n')
+      }]
+    }
+  }
+};
+
 const commandResolver = {
 
   order: {
@@ -96,12 +115,7 @@ const commandResolver = {
 
   todo: {
     executor: 'listTodos',
-    formatter: (todoMessages) => {
-      if (todoMessages.length === 0) {
-        return 'No TODOs';
-      }
-      return 'TODO:\n' + todoMessages.join('\n');
-    }
+    formatter: formatTodos
   }
 };
 
