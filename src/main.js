@@ -127,10 +127,15 @@ client.on('message', async message => {
 
   const command = commandResolver[firstWord];
   if (command) {
-    const masterOfRequester = masters.find(master => master.isMasterOf(message.author.id));
-    const result = await masterOfRequester[command.executor](client, message);
-    const response = command.formatter(result);
-    message.channel.send(response);
+    try {
+      const masterOfRequester = masters.find(master => master.isMasterOf(message.author.id));
+      const result = await masterOfRequester[command.executor](client, message);
+      const response = command.formatter(result);
+      message.channel.send(response);
+    } catch (e) {
+      console.error(e);
+      message.channel.send(`Sorry something wend wrong. Please contact administrator.`)
+    }
   } else {
     message.channel.send(
         `Available commands:
