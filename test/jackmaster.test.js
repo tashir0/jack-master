@@ -1,4 +1,4 @@
-const JackMaster = require('../src/jack-master.js');
+const JackMaster = require('../src/jack-master.ts');
 
 const member = (name, discordId, backlogId) => ({name, discordId, backlogId});
 

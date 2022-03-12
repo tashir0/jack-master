@@ -1,13 +1,39 @@
-const randomIntOfMax = max => Math.floor(Math.random() * Math.floor(max));
-const extractRandomly = items => items.splice(randomIntOfMax(items.length), 1)[0];
+import {Client, Message, MessageReaction} from "discord.js";
+import {BacklogProject, Comment, GitRepository, OpenPullRequest as BacklogOpenPullRequest } from "./backlog";
+import {Member, Team} from "./config";
 
-module.exports = (team, backlogProject) => {
+const randomIntOfMax = (max: number) => Math.floor(Math.random() * Math.floor(max));
+const extractRandomly = (items: any[]) => items.splice(randomIntOfMax(items.length), 1)[0];
+
+export type MeetingRoles = {
+  readonly facilitator: Member,
+  readonly timeKeeper: Member,
+  readonly clerical: Member,
+};
+
+export type ToDo = {
+  readonly content: string,
+  readonly url: string,
+};
+
+export type JackMaster = {
+  isMasterOf: (memberId: string) => boolean,
+  members: () => readonly Member[],
+  order: () => readonly Member[],
+  assignMeetingRoles: () => MeetingRoles,
+  pickOne: () => Member,
+  getOpenPullRequests: () => Promise<OpenPullRequest[]>
+  pair: () => Member[][],
+  listTodos: (message: Message) => Promise<readonly ToDo[]>,
+};
+
+export const JackMaster = (team: Team, backlogProject: BacklogProject): JackMaster => {
 
   const members = team.members;
 
-  const findMemberByBacklogId = id => members.find(m => m.backlogId === String(id));
+  const findMemberByBacklogId = (id: number): Member | undefined => members.find(m => m.backlogId === String(id));
 
-  const order = () => {
+  const order = (): Member[] => {
     const tempMembers = members.concat();
     const orderedMembers = [];
     while (0 < tempMembers.length) {
@@ -18,7 +44,7 @@ module.exports = (team, backlogProject) => {
 
   return {
 
-    isMasterOf: (memberId) =>
+    isMasterOf: (memberId: string) =>
         members.some(member => member.discordId === memberId),
 
     members: () => Object.freeze(members),
@@ -38,10 +64,10 @@ module.exports = (team, backlogProject) => {
       return extractRandomly(tempMembers);
     },
 
-    getOpenPullRequests: async () => {
-      const repositories = await backlogProject.repositories();
+    getOpenPullRequests: async (): Promise<OpenPullRequest[]> => {
+      const repositories: GitRepository[] = await backlogProject.repositories();
 
-      const lastPushedWithin3Months = r => {
+      const lastPushedWithin3Months = (r: GitRepository) => {
         const now = new Date().getTime();
         const lastPushedTime = new Date(r.lastPush).getTime();
         const threeMonthsInMillisecs = 1000 * 60 * 60 * 24 * 31 * 3;
@@ -56,15 +82,15 @@ module.exports = (team, backlogProject) => {
       // console.debug('Active repository names: %s', activeRepositoryNames);
 
       const teamUserIds = members.map(m => m.backlogId);
-      const pullRequests = [];
-      for (repositoryName of activeRepositoryNames) {
+      const pullRequests: BacklogOpenPullRequest[] = [];
+      for (const repositoryName of activeRepositoryNames) {
         const repositoryPullRequests = await backlogProject.fetchOpenPullRequestsCreatedBy(repositoryName, teamUserIds);
         pullRequests.push(...repositoryPullRequests);
       }
 
       console.debug('Open pull requests: %s', pullRequests.map(p => p.number));
 
-      const notifiedToAllOthers = comment => {
+      const notifiedToAllOthers = (comment: Comment) => {
         const otherMemberIds = members
         .filter(m => m.backlogId !== String(comment.createdUser.id))
         .map(m => m.backlogId);
@@ -73,32 +99,38 @@ module.exports = (team, backlogProject) => {
         return otherMemberIds.every(otherMemberId => notifiedUserIds.includes(otherMemberId));
       };
 
-      for (pullRequest of pullRequests) {
+      type StarInfo = {
+        presenters: Member[],
+        lastNotifier?: Member,
+      };
+
+      const pullRequestsWithStarInfo: [BacklogOpenPullRequest, StarInfo][] = [];
+      for (const pullRequest of pullRequests) {
         const comments = await backlogProject.fetchPullRequestComments(pullRequest.repositoryName, pullRequest.number);
         const lastCommentNotifiedToAllOthers = comments.find(notifiedToAllOthers);
         if (lastCommentNotifiedToAllOthers === undefined) {
           console.warn('Pull request without team notification detected: %s PR#%s', pullRequest.repositoryName, pullRequest.number);
-          pullRequest.starPresenters = []
+          pullRequestsWithStarInfo.push([ pullRequest, {presenters: [], lastNotifier: undefined}]);
         } else {
           const starPresenters = lastCommentNotifiedToAllOthers.stars
           .map(s => findMemberByBacklogId(s.presenter.id))
-          .filter(s => !!s); // star may be presented by someone not a team member
-          pullRequest.starPresenters = starPresenters;
-          pullRequest.lastNotifier = findMemberByBacklogId(lastCommentNotifiedToAllOthers.createdUser.id);
+          .filter(isDefined); // star may be presented by someone not in the team
+          const lastNotifier = findMemberByBacklogId(lastCommentNotifiedToAllOthers.createdUser.id)!;
+          pullRequestsWithStarInfo.push([pullRequest, {presenters: starPresenters, lastNotifier}])
         }
       }
 
-      const openPullRequests = pullRequests.map(
-          pullRequest => {
+      const openPullRequests = pullRequestsWithStarInfo.map(
+          ([pullRequest, starInfo]) => {
             return {
               ticketNumber: pullRequest.ticketNumber,
-              ticketUrl: backlogProject.ticketUrl(pullRequest.ticketNumber),
-              createdUser: findMemberByBacklogId(pullRequest.createdUser.id),
+              ticketUrl: pullRequest.ticketNumber ? backlogProject.ticketUrl(pullRequest.ticketNumber) : undefined,
+              createdUser: findMemberByBacklogId(pullRequest.createdUser.id)!,
               repositoryName: pullRequest.repositoryName,
               requestNumber: pullRequest.number,
               title: pullRequest.title,
-              lastNotifier: pullRequest.lastNotifier,
-              starPresenters: pullRequest.starPresenters,
+              lastNotifier: starInfo.lastNotifier,
+              starPresenters: starInfo.presenters,
               url: backlogProject.pullRequestUrl(pullRequest.repositoryName, pullRequest.number)
             };
           }
@@ -117,11 +149,11 @@ module.exports = (team, backlogProject) => {
       return pairs;
     },
 
-    listTodos: async (discordClient, message) => {
+    listTodos: async (message: Message): Promise<readonly ToDo[]> => {
       try {
         const messages = await message.channel.messages.fetch({ limit: 100 });
         const messagesInPostedOrder = [...messages].reverse();
-        return messagesInPostedOrder
+        const todoList: ToDo[] = messagesInPostedOrder
         .map(([_, message]) => message)
         .filter(hasTodoReaction)
         .filter(m => !hasDoneReaction(m))
@@ -129,14 +161,32 @@ module.exports = (team, backlogProject) => {
           content: m.content,
           url: m.url
         }));
+        return Object.freeze(todoList);
       } catch (e) {
         console.error(e);
-        return [];
+        return Object.freeze([]);
       }
     }
   };
 };
 
-const reactionCheckerFor = (id) => (message) => !!message.reactions?.cache.find(r => r.emoji.id === id);
+export type OpenPullRequest = {
+  ticketNumber?: number,
+  ticketUrl?: string,
+  createdUser: Member,
+  repositoryName: string,
+  requestNumber: number,
+  title: string,
+  lastNotifier?: Member,
+  starPresenters: Member[],
+  url: string
+};
+
+const isDefined = <T>(value: T | undefined): value is T => value !== undefined;
+
+type ReactionChecker = (message: Message) => boolean;
+
+const reactionCheckerFor = (id: string): ReactionChecker => (message: Message): boolean =>
+    !!message.reactions?.cache.find((r: MessageReaction) => r.emoji.id === id);
 const hasTodoReaction = reactionCheckerFor('908654943441936425');
 const hasDoneReaction = reactionCheckerFor('905717622421729301');

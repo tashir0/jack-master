@@ -34,7 +34,7 @@ describe('TEAMS', () => {
         + ']}'
         + ']';
 
-    const sut = require('../src/config.js');
+    const sut = require('../src/config.ts');
 
     expect(sut.TEAMS[0]).toStrictEqual({
       members: [
