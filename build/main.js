@@ -13,14 +13,14 @@ const discord_js_1 = require("discord.js");
 const config_1 = require("./config");
 const jack_master_1 = require("./jack-master");
 const backlog_1 = require("./backlog");
-const client = new discord_js_1.Client();
-client.on('ready', () => {
+const client = new discord_js_1.Client({ intents: discord_js_1.Intents.FLAGS.GUILDS });
+client.once('ready', () => {
     console.log('bot is ready!');
     const user = client.user;
     if (!user) {
         throw new Error('Discord client is not logged in');
     }
-    user.setPresence({ activity: { name: 'SAVスプリント' } });
+    user.setPresence({ activities: [{ name: 'SAVスプリント' }] });
 });
 const backlogProject = (0, backlog_1.createBacklogProject)('atw-proj.backlog.jp', 'SAV', config_1.config.backlogApiKey);
 const masters = config_1.config.teams.map((team) => (0, jack_master_1.JackMaster)(team, backlogProject));
@@ -28,10 +28,10 @@ const formatPullRequests = (pullRequests) => {
     // console.debug(JSON.stringify(pullRequests, null, '\t'));
     if (pullRequests.length === 0) {
         return {
-            embed: {
-                title: 'Open pull requests',
-                description: 'No open pull request'
-            }
+            embeds: [{
+                    title: 'Open pull requests',
+                    description: 'No open pull request'
+                }]
         };
     }
     const groupedByTicket = groupBy(pullRequests, (pr) => (pr.ticketNumber ? String(pr.ticketNumber) : 'No ticket'));
@@ -48,10 +48,10 @@ const formatPullRequests = (pullRequests) => {
         });
     });
     const result = {
-        embed: {
-            title: 'Open pull requests',
-            fields
-        }
+        embeds: [{
+                title: 'Open pull requests',
+                fields
+            }]
     };
     // console.debug(JSON.stringify(result, null, '\t'));
     return result;
@@ -59,19 +59,19 @@ const formatPullRequests = (pullRequests) => {
 const formatTodos = (todoMessages) => {
     if (todoMessages.length === 0) {
         return {
-            embed: {
-                title: 'TODO',
-                description: 'No TODOs left'
-            }
+            embeds: [{
+                    title: 'TODO',
+                    description: 'No TODOs left'
+                }]
         };
     }
     return {
-        embed: {
-            fields: [{
-                    name: 'TODO',
-                    value: todoMessages.map(m => `[${m.content}](${m.url})`).join('\n')
-                }]
-        }
+        embeds: [{
+                fields: [{
+                        name: 'TODO',
+                        value: todoMessages.map(m => `[${m.content}](${m.url})`).join('\n')
+                    }]
+            }]
     };
 };
 const orderCommand = {
@@ -132,7 +132,8 @@ const groupBy = (array, getGroupKey) => {
     }, new Map());
 };
 const removeMention = (message) => message.replace(/^<[^>]+>\s/, '');
-client.on('message', (message) => __awaiter(void 0, void 0, void 0, function* () {
+client.on('messageCreate', (message) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(message);
     if (!message.mentions.has(client.user, { ignoreEveryone: true, ignoreRoles: true })) {
         return;
     }
