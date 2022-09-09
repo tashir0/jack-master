@@ -15,15 +15,19 @@ const optionalNumberEnv = (key: EnvKey, defaultValue: number): number => {
 };
 
 export const config: Config = Object.freeze({
+  projectName: mandatoryEnv('PROJECT_NAME'),
   discordBotToken: mandatoryEnv('DISCORD_BOT_TOKEN'),
   teams: Object.freeze(JSON.parse(mandatoryEnv('TEAMS'))),
+  backlogHostName: mandatoryEnv('BACKLOG_HOST_NAME'),
   backlogApiKey: mandatoryEnv('BACKLOG_API_KEY'),
   logLevel: optionalNumberEnv('LOG_LEVEL',0)
 });
 
 export type Config = {
+  projectName: string,
   discordBotToken: string,
   teams: Team[],
+  backlogHostName: string,
   backlogApiKey: string,
   logLevel: number
 };
@@ -38,5 +42,10 @@ export type Team = {
   readonly members: Member[]
 };
 
-type EnvKey = 'DISCORD_BOT_TOKEN' | 'BACKLOG_API_KEY' | 'LOG_LEVEL' | 'TEAMS';
-
+type EnvKey =
+    'PROJECT_NAME'
+    | 'DISCORD_BOT_TOKEN'
+    | 'BACKLOG_HOST_NAME'
+    | 'BACKLOG_API_KEY'
+    | 'LOG_LEVEL'
+    | 'TEAMS';

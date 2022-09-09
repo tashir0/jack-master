@@ -11,12 +11,12 @@ client.on('ready', () => {
   if (!user) {
     throw new Error('Discord client is not logged in');
   }
-  user.setPresence({activity: {name: 'SAVスプリント'}});
+  user.setPresence({activity: {name: config.projectName}});
 });
 
 const backlogProject = createBacklogProject(
-    'atw-proj.backlog.jp',
-    'SAV',
+    config.backlogHostName,
+    config.projectName,
     config.backlogApiKey
 );
 
