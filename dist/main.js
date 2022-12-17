@@ -3017,13 +3017,13 @@ module.exports = erlpack;
 /***/ }),
 
 /***/ "ffmpeg-static":
-/*!********************************!*\
-  !*** external "ffmpeg-static" ***!
-  \********************************/
+/*!*******************************!*\
+  !*** external "ffmpegstatic" ***!
+  \*******************************/
 /***/ ((module) => {
 
 "use strict";
-module.exports = ffmpeg-static;
+module.exports = ffmpegstatic;
 
 /***/ }),
 

@@ -26,7 +26,9 @@ module.exports = {
     },
   },
   externals: {
-    'ffmpeg-static': 'ffmpeg-static',
+    // Peer dependency of prism-media used by discordjs
+    'ffmpeg-static': 'ffmpegstatic',
+    // Optional packages for discordjs which we are not using
     'zlib-sync': 'zlib-sync',
     bufferutil: 'bufferutil',
     erlpack: 'erlpack',
