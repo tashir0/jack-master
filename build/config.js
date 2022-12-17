@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.config = void 0;
 const isConfigured = (value) => value !== undefined && value.trim().length !== 0;
 const mandatoryEnv = (key) => {
     const value = process.env[key];
@@ -14,7 +11,7 @@ const optionalNumberEnv = (key, defaultValue) => {
     const value = process.env[key];
     return isConfigured(value) ? Number.parseInt(value, 10) : defaultValue;
 };
-exports.config = Object.freeze({
+export const config = Object.freeze({
     projectName: mandatoryEnv('PROJECT_NAME'),
     discordBotToken: mandatoryEnv('DISCORD_BOT_TOKEN'),
     teams: Object.freeze(JSON.parse(mandatoryEnv('TEAMS'))),

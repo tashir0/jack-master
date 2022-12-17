@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,22 +7,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-const discord_js_1 = require("discord.js");
-const config_1 = require("./config");
-const jack_master_1 = require("./jack-master");
-const backlog_1 = require("./backlog");
-const client = new discord_js_1.Client();
+import { Client } from 'discord.js';
+import { config } from "./config";
+import { JackMaster } from "./jack-master";
+import { createBacklogProject } from "./backlog";
+const client = new Client();
 client.on('ready', () => {
     console.log('bot is ready!');
     const user = client.user;
     if (!user) {
         throw new Error('Discord client is not logged in');
     }
-    user.setPresence({ activity: { name: config_1.config.projectName } });
+    user.setPresence({ activity: { name: config.projectName } });
 });
-const backlogProject = (0, backlog_1.createBacklogProject)(config_1.config.backlogHostName, config_1.config.projectName, config_1.config.backlogApiKey);
-const masters = config_1.config.teams.map((team) => (0, jack_master_1.JackMaster)(team, backlogProject));
+const backlogProject = createBacklogProject(config.backlogHostName, config.projectName, config.backlogApiKey);
+const masters = config.teams.map((team) => JackMaster(team, backlogProject));
 const formatPullRequests = (pullRequests) => {
     // console.debug(JSON.stringify(pullRequests, null, '\t'));
     if (pullRequests.length === 0) {
@@ -163,4 +161,4 @@ client.on('message', (message) => __awaiter(void 0, void 0, void 0, function* ()
         \`todo\` Lists messages with \`TODO\` but without \`済\` stamp within the channel. Looks up latest 100 messages`);
     }
 }));
-client.login(config_1.config.discordBotToken);
+client.login(config.discordBotToken);

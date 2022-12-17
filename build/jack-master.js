@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,11 +7,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.JackMaster = void 0;
 const randomIntOfMax = (max) => Math.floor(Math.random() * Math.floor(max));
 const extractRandomly = (items) => items.splice(randomIntOfMax(items.length), 1)[0];
-const JackMaster = (team, backlogProject) => {
+export const JackMaster = (team, backlogProject) => {
     const members = team.members;
     const findMemberByBacklogId = (id) => members.find(m => m.backlogId === String(id));
     const order = () => {
@@ -127,7 +124,6 @@ const JackMaster = (team, backlogProject) => {
         })
     };
 };
-exports.JackMaster = JackMaster;
 const isDefined = (value) => value !== undefined;
 const reactionCheckerFor = (id) => (message) => { var _a; return !!((_a = message.reactions) === null || _a === void 0 ? void 0 : _a.cache.find((r) => r.emoji.id === id)); };
 const hasTodoReaction = reactionCheckerFor('908654943441936425');

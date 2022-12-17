@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,14 +7,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.createBacklogProject = void 0;
-const node_fetch_1 = __importDefault(require("node-fetch"));
+import fetch from "node-fetch";
 const sleep = (millisecs) => (new Promise((resolve) => global.setTimeout(resolve, millisecs)));
-const createBacklogProject = (hostName, projectName, apiKey) => {
+export const createBacklogProject = (hostName, projectName, apiKey) => {
     const apiBaseUrl = `https://${hostName}/api/v2`;
     const apiBaseProjectUrl = `${apiBaseUrl}/projects/${projectName}`;
     const pullRequestStatusOpen = '1';
@@ -53,11 +47,10 @@ const createBacklogProject = (hostName, projectName, apiKey) => {
         ticketUrl,
     };
 };
-exports.createBacklogProject = createBacklogProject;
 const fetchAsJson = (url) => __awaiter(void 0, void 0, void 0, function* () {
     // Backlog prohibits excessive access
     yield sleep(300);
-    const response = yield (0, node_fetch_1.default)(url);
+    const response = yield fetch(url);
     const text = yield response.text();
     const json = JSON.parse(text);
     // console.debug(`${new Date()} ${url}\n${JSON.stringify(json, null, "\t")}`);
