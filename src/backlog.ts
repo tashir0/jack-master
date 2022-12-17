@@ -1,4 +1,4 @@
-const fetch = require('node-fetch');
+import fetch from "node-fetch";
 
 const sleep = (millisecs: number) =>
     (new Promise((resolve) => global.setTimeout(resolve, millisecs)));

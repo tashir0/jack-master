@@ -15,8 +15,10 @@ const optionalNumberEnv = (key, defaultValue) => {
     return isConfigured(value) ? Number.parseInt(value, 10) : defaultValue;
 };
 exports.config = Object.freeze({
+    projectName: mandatoryEnv('PROJECT_NAME'),
     discordBotToken: mandatoryEnv('DISCORD_BOT_TOKEN'),
     teams: Object.freeze(JSON.parse(mandatoryEnv('TEAMS'))),
+    backlogHostName: mandatoryEnv('BACKLOG_HOST_NAME'),
     backlogApiKey: mandatoryEnv('BACKLOG_API_KEY'),
     logLevel: optionalNumberEnv('LOG_LEVEL', 0)
 });

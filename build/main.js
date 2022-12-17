@@ -20,9 +20,9 @@ client.on('ready', () => {
     if (!user) {
         throw new Error('Discord client is not logged in');
     }
-    user.setPresence({ activity: { name: 'SAVスプリント' } });
+    user.setPresence({ activity: { name: config_1.config.projectName } });
 });
-const backlogProject = (0, backlog_1.createBacklogProject)('atw-proj.backlog.jp', 'SAV', config_1.config.backlogApiKey);
+const backlogProject = (0, backlog_1.createBacklogProject)(config_1.config.backlogHostName, config_1.config.projectName, config_1.config.backlogApiKey);
 const masters = config_1.config.teams.map((team) => (0, jack_master_1.JackMaster)(team, backlogProject));
 const formatPullRequests = (pullRequests) => {
     // console.debug(JSON.stringify(pullRequests, null, '\t'));
