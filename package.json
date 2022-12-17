@@ -6,6 +6,7 @@
     "node": "16.16.0",
     "npm": "8.11.0"
   },
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tashir0/jack-master.git"
