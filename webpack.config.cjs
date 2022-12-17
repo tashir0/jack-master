@@ -7,15 +7,13 @@ module.exports = {
      {
        test: /\.ts$/,
        use: 'ts-loader',
-     },
-     {
-       test: /\.node$/,
-       use: 'file-loader',
+       exclude: /node_modules/,
      },
    ]
   },
   output: {
     publicPath: '',
+    clean: true,
   },
   resolve: {
     extensions: [ '.ts', '.js' ],
@@ -26,6 +24,13 @@ module.exports = {
       fs: false,
       buffer: false,
     },
+  },
+  externals: {
+    'ffmpeg-static': 'ffmpeg-static',
+    'zlib-sync': 'zlib-sync',
+    bufferutil: 'bufferutil',
+    erlpack: 'erlpack',
+    'utf-8-validate': 'utf-8-validate',
   },
   externalsPresets: { node: true },
 }
