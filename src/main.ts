@@ -1,7 +1,7 @@
 import {Client, Message, StringResolvable} from 'discord.js';
-import {config, Member, Team} from "./config.js";
-import {JackMaster, MeetingRoles, OpenPullRequest, ToDo} from "./jack-master.js";
-import {createBacklogProject} from "./backlog.js";
+import {config, Member, Team} from "./config";
+import {JackMaster, MeetingRoles, OpenPullRequest, ToDo} from "./jack-master";
+import {createBacklogProject} from "./backlog";
 
 const client = new Client();
 
