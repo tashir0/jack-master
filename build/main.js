@@ -20,6 +20,9 @@ client.on('ready', () => {
     }
     user.setPresence({ activity: { name: config.projectName } });
 });
+client.on('error', (e) => {
+    console.error(`${e.name}: ${e.message}`);
+});
 const backlogProject = createBacklogProject(config.backlogHostName, config.projectName, config.backlogApiKey);
 const masters = config.teams.map((team) => JackMaster(team, backlogProject));
 const formatPullRequests = (pullRequests) => {

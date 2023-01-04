@@ -14,6 +14,10 @@ client.on('ready', () => {
   user.setPresence({activity: {name: config.projectName}});
 });
 
+client.on('error', (e) => {
+  console.error(`${e.name}: ${e.message}`);
+});
+
 const backlogProject = createBacklogProject(
     config.backlogHostName,
     config.projectName,
