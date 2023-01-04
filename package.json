@@ -14,7 +14,7 @@
   "main": "dist/main.js",
   "dependencies": {
     "discord.js": "12.5.3",
-    "node-fetch": "^3.3.0"
+    "node-fetch": "^2.6.1cu"
   },
   "devDependencies": {
     "jest": "^26.6.3",
