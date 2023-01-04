@@ -6,7 +6,7 @@
     "node": "16.16.0",
     "npm": "8.11.0"
   },
-  "type": "commonjs",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tashir0/jack-master.git"
@@ -25,7 +25,7 @@
     "webpack-cli": "^5.0.1"
   },
   "scripts": {
-    "start": "node build/main.js",
+    "start": "node --es-module-specifier-resolution=node build/main.js",
     "build": "tsc",
     "compile": "tsc -p ."
   }
