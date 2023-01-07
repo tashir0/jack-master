@@ -20,6 +20,26 @@ export const JackMaster = (team, backlogProject) => {
         }
         return orderedMembers;
     };
+    const listTodos = (channel) => __awaiter(void 0, void 0, void 0, function* () {
+        const tasks = yield listTasks(channel);
+        return tasks.filter(t => !t.done);
+    });
+    const fetchLastestInPostedOrder = (channel) => __awaiter(void 0, void 0, void 0, function* () {
+        const idMessagePairs = yield channel.messages.fetch({ limit: 100 });
+        return [...idMessagePairs].reverse()
+            .map(([_, message]) => message);
+    });
+    const listTasks = (channel) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            return (yield fetchLastestInPostedOrder(channel))
+                .filter(hasTodoReaction)
+                .map(messageToTask);
+        }
+        catch (e) {
+            console.error(e);
+            return [];
+        }
+    });
     return {
         isMasterOf: (memberId) => members.some(member => member.discordId === memberId),
         members: () => Object.freeze(members),
@@ -103,29 +123,19 @@ export const JackMaster = (team, backlogProject) => {
             }
             return pairs;
         },
-        listTodos: (message) => __awaiter(void 0, void 0, void 0, function* () {
-            try {
-                const messages = yield message.channel.messages.fetch({ limit: 100 });
-                const messagesInPostedOrder = [...messages].reverse();
-                const todoList = messagesInPostedOrder
-                    .map(([_, message]) => message)
-                    .filter(hasTodoReaction)
-                    .filter(m => !hasDoneReaction(m))
-                    .map(m => ({
-                    content: m.content,
-                    url: m.url
-                }));
-                return todoList;
-            }
-            catch (e) {
-                console.error(e);
-                return [];
-            }
-        })
+        listTodos,
+        listTasks,
     };
 };
 const isDefined = (value) => value !== undefined;
 const reactionCheckerFor = (id) => (message) => { var _a; return !!((_a = message.reactions) === null || _a === void 0 ? void 0 : _a.cache.find((r) => r.emoji.id === id)); };
 const hasTodoReaction = reactionCheckerFor('908654943441936425');
 const hasDoneReaction = reactionCheckerFor('905717622421729301');
+const messageToTask = (message) => ({
+    id: message.id,
+    content: message.content,
+    url: message.url,
+    done: hasDoneReaction(message),
+    subtasks: [],
+});
 //# sourceMappingURL=jack-master.js.map

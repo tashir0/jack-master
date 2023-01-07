@@ -62,21 +62,41 @@ const formatPullRequests = (pullRequests) => {
     // console.debug(JSON.stringify(result, null, '\t'));
     return result;
 };
-const formatTodos = (todoMessages) => {
-    if (todoMessages.length === 0) {
+const formatTodos = (todos) => {
+    if (todos.length === 0) {
         return {
             embeds: [{
-                    title: 'TODO',
-                    description: 'No TODOs left',
+                    title: 'ToDo',
+                    description: 'No ToDos left',
                 }],
         };
     }
     return {
         embeds: [{
                 fields: [{
-                        name: 'TODO',
-                        value: todoMessages
+                        name: 'ToDo',
+                        value: todos
                             .map((m, index) => `${index + 1}. [${m.content}](${m.url})`)
+                            .join('\n'),
+                    }]
+            }],
+    };
+};
+const formatTasks = (tasks) => {
+    if (tasks.length === 0) {
+        return {
+            embeds: [{
+                    title: 'Tasks',
+                    description: 'No tasks found in this channel',
+                }],
+        };
+    }
+    return {
+        embeds: [{
+                fields: [{
+                        name: 'Tasks',
+                        value: tasks
+                            .map((t, index) => `${t.done ? '**済** ' : ''} ${index + 1}. [${t.content}](${t.url})`)
                             .join('\n'),
                     }]
             }],
@@ -120,8 +140,12 @@ const pairCommand = {
         .join('\n')
 };
 const todoCommand = {
-    execute: (master, message) => __awaiter(void 0, void 0, void 0, function* () { return (yield master.listTodos(message)); }),
-    format: formatTodos
+    execute: (master, message) => __awaiter(void 0, void 0, void 0, function* () { return (yield master.listTodos(message.channel)); }),
+    format: formatTodos,
+};
+const taskCommand = {
+    execute: (master, message) => __awaiter(void 0, void 0, void 0, function* () { return (yield master.listTasks(message.channel)); }),
+    format: formatTasks,
 };
 const commandRegistry = new Map()
     .set('order', orderCommand)
@@ -130,7 +154,8 @@ const commandRegistry = new Map()
     .set('members', membersCommand)
     .set('stars', starsCommand)
     .set('pair', pairCommand)
-    .set('todo', todoCommand);
+    .set('todos', todoCommand)
+    .set('tasks', taskCommand);
 const groupBy = (array, getGroupKey) => {
     return array.reduce((accumulator, currentValue) => {
         const groupKey = getGroupKey(currentValue);
@@ -168,7 +193,8 @@ client.on('messageCreate', (message) => __awaiter(void 0, void 0, void 0, functi
         \`members\` Lists all team members
         \`stars\` Lists open pull requests for own team
         \`pair\` Pair team members randomly
-        \`todo\` Lists messages with \`TODO\` but without \`済\` stamp within the channel. Looks up latest 100 messages`);
+        \`tasks\` Lists messages with \`TODO\` stamp within the channel. Looks up latest 100 messages
+        \`todos\` Lists messages with \`TODO\` but without \`済\` stamp within the channel. Looks up latest 100 messages`);
     }
 }));
 client.login(config.discordBotToken);

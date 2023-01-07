@@ -1,6 +1,14 @@
-import {Client, Intents, Message, MessageOptions, MessagePayload} from 'discord.js';
+import {
+  Client,
+  Intents,
+  Message,
+  MessageOptions,
+  MessagePayload,
+  TextChannel,
+  ThreadChannel
+} from 'discord.js';
 import {config, Member, Team} from "./config";
-import {JackMaster, MeetingRoles, OpenPullRequest, ToDo} from "./jack-master";
+import {JackMaster, MeetingRoles, OpenPullRequest, Task} from "./jack-master";
 import {createBacklogProject} from "./backlog";
 
 const intents = new Intents([
@@ -64,20 +72,20 @@ const formatPullRequests = (pullRequests: OpenPullRequest[]): MessageOptions => 
   return result;
 };
 
-const formatTodos = (todoMessages: readonly ToDo[]): MessageOptions => {
-  if (todoMessages.length === 0) {
+const formatTodos = (todos: readonly Task[]): MessageOptions => {
+  if (todos.length === 0) {
     return {
       embeds: [{
-        title: 'TODO',
-        description: 'No TODOs left',
+        title: 'ToDo',
+        description: 'No ToDos left',
       }],
     };
   }
   return {
     embeds: [{
       fields: [{
-        name: 'TODO',
-        value: todoMessages
+        name: 'ToDo',
+        value: todos
             .map((m, index) => `${index + 1}. [${m.content}](${m.url})`)
             .join('\n'),
       }]
@@ -85,7 +93,28 @@ const formatTodos = (todoMessages: readonly ToDo[]): MessageOptions => {
   }
 };
 
-type Command<R> = {
+const formatTasks = (tasks: readonly Task[]): MessageOptions => {
+  if (tasks.length === 0) {
+    return {
+      embeds: [{
+        title: 'Tasks',
+        description: 'No tasks found in this channel',
+      }],
+    };
+  }
+  return {
+    embeds: [{
+      fields: [{
+        name: 'Tasks',
+        value: tasks
+            .map((t, index) => `${t.done ? '**済** ':''} ${index + 1}. [${t.content}](${t.url})`)
+            .join('\n'),
+      }]
+    }],
+  }
+};
+
+type  Command<R> = {
   execute: (master: JackMaster, message: Message) => R | Promise<R>,
   format: (result: R) => string | MessageOptions,
 };
@@ -130,19 +159,25 @@ const pairCommand: Command<Member[][]> = {
   .join('\n')
 };
 
-const todoCommand: Command<readonly ToDo[]> = {
-  execute: async (master, message) => (await master.listTodos(message)),
-  format: formatTodos
+const todoCommand: Command<readonly Task[]> = {
+  execute: async (master, message) => (await master.listTodos(message.channel as TextChannel | ThreadChannel)),
+  format: formatTodos,
 };
 
-const commandRegistry: Map<string, Command<any | Promise<any>>> = new Map()
-  .set('order', orderCommand)
-  .set('meeting', meetingCommand)
-  .set('random', randomCommand)
-  .set('members', membersCommand)
-  .set('stars', starsCommand)
-  .set('pair', pairCommand)
-  .set('todo', todoCommand);
+const taskCommand: Command<readonly Task[]> = {
+  execute: async (master, message) => (await master.listTasks(message.channel as TextChannel | ThreadChannel)),
+  format: formatTasks,
+};
+
+const commandRegistry: Map<string, Command<any>> = new Map()
+    .set('order', orderCommand)
+    .set('meeting', meetingCommand)
+    .set('random', randomCommand)
+    .set('members', membersCommand)
+    .set('stars', starsCommand)
+    .set('pair', pairCommand)
+    .set('todos', todoCommand)
+    .set('tasks', taskCommand);
 
 const groupBy = <T>(array: T[], getGroupKey: (element: T) => string): Map<string, T[]> => {
   return array.reduce((accumulator, currentValue) => {
@@ -184,7 +219,8 @@ client.on('messageCreate', async message => {
         \`members\` Lists all team members
         \`stars\` Lists open pull requests for own team
         \`pair\` Pair team members randomly
-        \`todo\` Lists messages with \`TODO\` but without \`済\` stamp within the channel. Looks up latest 100 messages`);
+        \`tasks\` Lists messages with \`TODO\` stamp within the channel. Looks up latest 100 messages
+        \`todos\` Lists messages with \`TODO\` but without \`済\` stamp within the channel. Looks up latest 100 messages`);
   }
 });
 

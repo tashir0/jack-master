@@ -1,5 +1,10 @@
-import {Client, Message, MessageReaction} from "discord.js";
-import {BacklogProject, Comment, GitRepository, OpenPullRequest as BacklogOpenPullRequest } from "./backlog";
+import {Message, MessageReaction, TextChannel, ThreadChannel} from "discord.js";
+import {
+  BacklogProject,
+  Comment,
+  GitRepository,
+  OpenPullRequest as BacklogOpenPullRequest
+} from "./backlog";
 import {Member, Team} from "./config";
 
 const randomIntOfMax = (max: number) => Math.floor(Math.random() * Math.floor(max));
@@ -11,9 +16,12 @@ export type MeetingRoles = {
   readonly clerical: Member,
 };
 
-export type ToDo = {
+export type Task = {
+  readonly id: string,
   readonly content: string,
   readonly url: string,
+  readonly done: boolean,
+  readonly subtasks: Task[],
 };
 
 export type JackMaster = {
@@ -24,7 +32,8 @@ export type JackMaster = {
   pickOne: () => Member,
   getOpenPullRequests: () => Promise<OpenPullRequest[]>
   pair: () => Member[][],
-  listTodos: (message: Message) => Promise<readonly ToDo[]>,
+  listTodos: (channel: TextChannel | ThreadChannel) => Promise<readonly Task[]>,
+  listTasks: (channel: TextChannel | ThreadChannel) => Promise<readonly Task[]>,
 };
 
 export const JackMaster = (team: Team, backlogProject: BacklogProject): JackMaster => {
@@ -40,6 +49,28 @@ export const JackMaster = (team: Team, backlogProject: BacklogProject): JackMast
       orderedMembers.push(extractRandomly(tempMembers));
     }
     return orderedMembers;
+  };
+
+  const listTodos = async (channel: TextChannel | ThreadChannel): Promise<readonly Task[]> => {
+    const tasks = await listTasks(channel);
+    return tasks.filter(t => !t.done);
+  };
+
+  const fetchLastestInPostedOrder = async (channel: TextChannel | ThreadChannel): Promise<Message[]> => {
+    const idMessagePairs = await channel.messages.fetch({limit: 100});
+    return [...idMessagePairs].reverse()
+        .map(([_, message]) => message);
+  };
+
+  const listTasks = async (channel: TextChannel | ThreadChannel): Promise<readonly Task[]> => {
+    try {
+      return (await fetchLastestInPostedOrder(channel))
+          .filter(hasTodoReaction)
+          .map(messageToTask)
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
   };
 
   return {
@@ -149,24 +180,8 @@ export const JackMaster = (team: Team, backlogProject: BacklogProject): JackMast
       return pairs;
     },
 
-    listTodos: async (message: Message): Promise<readonly ToDo[]> => {
-      try {
-        const messages = await message.channel.messages.fetch({ limit: 100 });
-        const messagesInPostedOrder = [...messages].reverse();
-        const todoList: ToDo[] = messagesInPostedOrder
-        .map(([_, message]) => message)
-        .filter(hasTodoReaction)
-        .filter(m => !hasDoneReaction(m))
-        .map(m => ({
-          content: m.content,
-          url: m.url
-        }));
-        return todoList;
-      } catch (e) {
-        console.error(e);
-        return [];
-      }
-    }
+    listTodos,
+    listTasks,
   };
 };
 
@@ -190,3 +205,11 @@ const reactionCheckerFor = (id: string): ReactionChecker => (message: Message): 
     !!message.reactions?.cache.find((r: MessageReaction) => r.emoji.id === id);
 const hasTodoReaction = reactionCheckerFor('908654943441936425');
 const hasDoneReaction = reactionCheckerFor('905717622421729301');
+
+const messageToTask = (message: Message): Task => ({
+  id: message.id,
+  content: message.content,
+  url: message.url,
+  done: hasDoneReaction(message),
+  subtasks: [],
+});
