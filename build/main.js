@@ -106,7 +106,8 @@ const formatTask = (task, index, parentTaskNumber = '', indentCount = 0) => {
     const indent = '- '.repeat(indentCount); // we cannot use spaces since it is trimmed
     const doneMarker = task.done ? '**済** ' : '';
     const taskNumber = (parentTaskNumber ? parentTaskNumber + '-' : '') + (index + 1);
-    const messageLink = `[${task.done ? strike(task.content) : task.content}](${task.url})`;
+    const shownContent = task.content.substring(0, 100);
+    const messageLink = `[${task.done ? strike(shownContent) : shownContent}](${task.url})`;
     const thisTask = `${indent} ${taskNumber}. ${doneMarker} ${messageLink}\n`;
     return thisTask + task.subtasks
         .map((t, index) => formatTask(t, index, taskNumber, indentCount + 1))

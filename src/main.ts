@@ -118,7 +118,11 @@ const formatTask = (task: Task, index: number, parentTaskNumber = '', indentCoun
   const indent = '- '.repeat(indentCount); // we cannot use spaces since it is trimmed
   const doneMarker = task.done ? '**済** ' : '';
   const taskNumber = (parentTaskNumber ? parentTaskNumber + '-' : '') + (index + 1);
-  const messageLink = `[${task.done ? strike(task.content) : task.content}](${task.url})`;
+  // FIXME Even though we are trimming the content here, we can only show 8 or 9 tasks
+  //  since embeds[0].fields[0].value length must be less than 1024.
+  //  Consider seperating tasks into multiple field.
+  const shownContent = task.content.substring(0, 100);
+  const messageLink = `[${task.done ? strike(shownContent) : shownContent}](${task.url})`;
   const thisTask = `${indent} ${taskNumber}. ${doneMarker} ${messageLink}\n`;
   return thisTask + task.subtasks
       .map((t, index) => formatTask(t, index, taskNumber, indentCount + 1))
