@@ -1,5 +1,5 @@
 import {
-  Client,
+  Client, EmbedField,
   Intents,
   Message,
   MessageOptions,
@@ -94,39 +94,32 @@ const formatTodos = (todos: readonly Task[]): MessageOptions => {
 };
 
 const formatTasks = (tasks: readonly Task[]): MessageOptions => {
-  if (tasks.length === 0) {
-    return {
-      embeds: [{
-        title: 'Tasks',
-        description: 'No tasks found in this channel',
-      }],
-    };
-  }
+  const description = tasks.length === 0 ? 'No tasks found in this channel' : undefined;
+  const fields = tasks.flatMap((t, index) => formatTaskToFields(t, index));
   return {
     embeds: [{
-      fields: [{
-        name: 'Tasks',
-        value: tasks
-            .map((t, index) => formatTask(t, index))
-            .join(''),
-      }]
+      title: 'Tasks',
+      description,
+      fields
     }],
   }
 };
 
-const formatTask = (task: Task, index: number, parentTaskNumber = '', indentCount = 0): string => {
-  const indent = '- '.repeat(indentCount); // we cannot use spaces since it is trimmed
-  const doneMarker = task.done ? '**済** ' : '';
+const formatTaskToFields = (task: Task, index: number, parentTaskNumber = ''): EmbedField[] => {
   const taskNumber = (parentTaskNumber ? parentTaskNumber + '-' : '') + (index + 1);
-  // FIXME Even though we are trimming the content here, we can only show 8 or 9 tasks
-  //  since embeds[0].fields[0].value length must be less than 1024.
-  //  Consider seperating tasks into multiple field.
-  const shownContent = task.content.substring(0, 100);
+
+  const doneMarker = task.done ? ' (済)' : '';
+  const shownContent = task.content.substring(0, 100) + (100 < task.content.length ? '...' : '');
   const messageLink = `[${task.done ? strike(shownContent) : shownContent}](${task.url})`;
-  const thisTask = `${indent} ${taskNumber}. ${doneMarker} ${messageLink}\n`;
-  return thisTask + task.subtasks
-      .map((t, index) => formatTask(t, index, taskNumber, indentCount + 1))
-      .join('');
+
+  const subtaskFields = task.subtasks
+      .flatMap((t, index) => formatTaskToFields(t, index, taskNumber));
+
+  return [{
+    name: taskNumber + '.' + doneMarker,
+    value: messageLink,
+    inline: false,
+  }, ...subtaskFields];
 };
 
 type  Command<R> = {

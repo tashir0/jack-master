@@ -83,35 +83,28 @@ const formatTodos = (todos) => {
     };
 };
 const formatTasks = (tasks) => {
-    if (tasks.length === 0) {
-        return {
-            embeds: [{
-                    title: 'Tasks',
-                    description: 'No tasks found in this channel',
-                }],
-        };
-    }
+    const description = tasks.length === 0 ? 'No tasks found in this channel' : undefined;
+    const fields = tasks.flatMap((t, index) => formatTaskToFields(t, index));
     return {
         embeds: [{
-                fields: [{
-                        name: 'Tasks',
-                        value: tasks
-                            .map((t, index) => formatTask(t, index))
-                            .join(''),
-                    }]
+                title: 'Tasks',
+                description,
+                fields
             }],
     };
 };
-const formatTask = (task, index, parentTaskNumber = '', indentCount = 0) => {
-    const indent = '- '.repeat(indentCount); // we cannot use spaces since it is trimmed
-    const doneMarker = task.done ? '**済** ' : '';
+const formatTaskToFields = (task, index, parentTaskNumber = '') => {
     const taskNumber = (parentTaskNumber ? parentTaskNumber + '-' : '') + (index + 1);
-    const shownContent = task.content.substring(0, 100);
+    const doneMarker = task.done ? ' (済)' : '';
+    const shownContent = task.content.substring(0, 100) + (100 < task.content.length ? '...' : '');
     const messageLink = `[${task.done ? strike(shownContent) : shownContent}](${task.url})`;
-    const thisTask = `${indent} ${taskNumber}. ${doneMarker} ${messageLink}\n`;
-    return thisTask + task.subtasks
-        .map((t, index) => formatTask(t, index, taskNumber, indentCount + 1))
-        .join('');
+    const subtaskFields = task.subtasks
+        .flatMap((t, index) => formatTaskToFields(t, index, taskNumber));
+    return [{
+            name: taskNumber + '.' + doneMarker,
+            value: messageLink,
+            inline: false,
+        }, ...subtaskFields];
 };
 const orderCommand = {
     execute: master => master.order(),
