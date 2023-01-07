@@ -115,11 +115,11 @@ export const JackMaster = (team, backlogProject) => {
                     content: m.content,
                     url: m.url
                 }));
-                return Object.freeze(todoList);
+                return todoList;
             }
             catch (e) {
                 console.error(e);
-                return Object.freeze([]);
+                return [];
             }
         })
     };

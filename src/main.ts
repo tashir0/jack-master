@@ -77,7 +77,9 @@ const formatTodos = (todoMessages: readonly ToDo[]): MessageOptions => {
     embeds: [{
       fields: [{
         name: 'TODO',
-        value: todoMessages.map(m => `[${m.content}](${m.url})`).join('\n'),
+        value: todoMessages
+            .map((m, index) => `${index + 1}. [${m.content}](${m.url})`)
+            .join('\n'),
       }]
     }],
   }

@@ -161,10 +161,10 @@ export const JackMaster = (team: Team, backlogProject: BacklogProject): JackMast
           content: m.content,
           url: m.url
         }));
-        return Object.freeze(todoList);
+        return todoList;
       } catch (e) {
         console.error(e);
-        return Object.freeze([]);
+        return [];
       }
     }
   };
