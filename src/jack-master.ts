@@ -56,9 +56,15 @@ export const JackMaster = (team: Team, backlogProject: BacklogProject): JackMast
     return tasks.filter(t => !t.done);
   };
 
-  const fetchLastestMessages = async (channel: TextChannel | ThreadChannel): Promise<Message[]> => {
-    const idMessagePairs = await channel.messages.fetch({limit: 100});
-    return [...idMessagePairs].map(([_, message]) => message);
+  const fetchLastestMessages = async (channel: TextChannel | ThreadChannel, count = 500): Promise<Message[]> => {
+    const messages = [];
+    let lot = await channel.messages.fetch({limit: 100});
+    messages.push(...lot);
+    while (lot.size === 100 && messages.length < count) {
+      lot = await channel.messages.fetch({limit: 100, before: lot.last()!.id});
+      messages.push(...lot);
+    }
+    return [...messages].map(([_, message]) => message);
   };
 
   const listTasks = async (channel: TextChannel | ThreadChannel): Promise<readonly Task[]> => {

@@ -228,8 +228,8 @@ client.on('messageCreate', async message => {
         \`members\` Lists all team members
         \`stars\` Lists open pull requests for own team
         \`pair\` Pair team members randomly
-        \`tasks\` Lists messages with \`TODO\` stamp within the channel. Looks up latest 100 messages
-        \`todos\` Lists messages with \`TODO\` but without \`済\` stamp within the channel. Looks up latest 100 messages`);
+        \`tasks\` Lists messages with \`TODO\` stamp within the channel. Looks up latest 500 messages
+        \`todos\` Lists messages with \`TODO\` but without \`済\` stamp within the channel. Looks up latest 500 messages`);
   }
 });
 

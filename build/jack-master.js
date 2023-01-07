@@ -24,9 +24,15 @@ export const JackMaster = (team, backlogProject) => {
         const tasks = yield listTasks(channel);
         return tasks.filter(t => !t.done);
     });
-    const fetchLastestMessages = (channel) => __awaiter(void 0, void 0, void 0, function* () {
-        const idMessagePairs = yield channel.messages.fetch({ limit: 100 });
-        return [...idMessagePairs].map(([_, message]) => message);
+    const fetchLastestMessages = (channel, count = 500) => __awaiter(void 0, void 0, void 0, function* () {
+        const messages = [];
+        let lot = yield channel.messages.fetch({ limit: 100 });
+        messages.push(...lot);
+        while (lot.size === 100 && messages.length < count) {
+            lot = yield channel.messages.fetch({ limit: 100, before: lot.last().id });
+            messages.push(...lot);
+        }
+        return [...messages].map(([_, message]) => message);
     });
     const listTasks = (channel) => __awaiter(void 0, void 0, void 0, function* () {
         try {
