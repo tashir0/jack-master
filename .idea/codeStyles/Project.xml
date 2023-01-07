@@ -82,9 +82,6 @@
     <ScalaCodeStyleSettings>
       <option name="MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE" value="true" />
     </ScalaCodeStyleSettings>
-    <TypeScriptCodeStyleSettings version="0">
-      <option name="INDENT_CHAINED_CALLS" value="false" />
-    </TypeScriptCodeStyleSettings>
     <XML>
       <option name="XML_ALIGN_ATTRIBUTES" value="false" />
     </XML>
