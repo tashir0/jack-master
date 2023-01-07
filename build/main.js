@@ -7,18 +7,23 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { Client } from 'discord.js';
+import { Client, Intents } from 'discord.js';
 import { config } from "./config";
 import { JackMaster } from "./jack-master";
 import { createBacklogProject } from "./backlog";
-const client = new Client();
+const intents = new Intents([
+    Intents.FLAGS.GUILDS,
+    Intents.FLAGS.GUILD_MESSAGES,
+    Intents.FLAGS.DIRECT_MESSAGES
+]);
+const client = new Client({ intents });
 client.on('ready', () => {
     console.log('bot is ready!');
     const user = client.user;
     if (!user) {
         throw new Error('Discord client is not logged in');
     }
-    user.setPresence({ activity: { name: config.projectName } });
+    user.setPresence({ activities: [{ name: config.projectName }] });
 });
 client.on('error', (e) => {
     console.error(`${e.name}: ${e.message}`);
@@ -29,10 +34,10 @@ const formatPullRequests = (pullRequests) => {
     // console.debug(JSON.stringify(pullRequests, null, '\t'));
     if (pullRequests.length === 0) {
         return {
-            embed: {
-                title: 'Open pull requests',
-                description: 'No open pull request'
-            }
+            embeds: [{
+                    title: 'Open pull requests',
+                    description: 'No open pull request',
+                }],
         };
     }
     const groupedByTicket = groupBy(pullRequests, (pr) => (pr.ticketNumber ? String(pr.ticketNumber) : 'No ticket'));
@@ -49,10 +54,10 @@ const formatPullRequests = (pullRequests) => {
         });
     });
     const result = {
-        embed: {
-            title: 'Open pull requests',
-            fields
-        }
+        embeds: [{
+                title: 'Open pull requests',
+                fields,
+            }],
     };
     // console.debug(JSON.stringify(result, null, '\t'));
     return result;
@@ -60,19 +65,19 @@ const formatPullRequests = (pullRequests) => {
 const formatTodos = (todoMessages) => {
     if (todoMessages.length === 0) {
         return {
-            embed: {
-                title: 'TODO',
-                description: 'No TODOs left'
-            }
+            embeds: [{
+                    title: 'TODO',
+                    description: 'No TODOs left',
+                }],
         };
     }
     return {
-        embed: {
-            fields: [{
-                    name: 'TODO',
-                    value: todoMessages.map(m => `[${m.content}](${m.url})`).join('\n')
-                }]
-        }
+        embeds: [{
+                fields: [{
+                        name: 'TODO',
+                        value: todoMessages.map(m => `[${m.content}](${m.url})`).join('\n'),
+                    }]
+            }],
     };
 };
 const orderCommand = {
@@ -133,7 +138,7 @@ const groupBy = (array, getGroupKey) => {
     }, new Map());
 };
 const removeMention = (message) => message.replace(/^<[^>]+>\s/, '');
-client.on('message', (message) => __awaiter(void 0, void 0, void 0, function* () {
+client.on('messageCreate', (message) => __awaiter(void 0, void 0, void 0, function* () {
     if (!message.mentions.has(client.user, { ignoreEveryone: true, ignoreRoles: true })) {
         return;
     }

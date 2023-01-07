@@ -13,7 +13,7 @@
   },
   "main": "dist/main.js",
   "dependencies": {
-    "discord.js": "12.5.3",
+    "discord.js": "13",
     "node-fetch": "^2.6.1cu"
   },
   "devDependencies": {
