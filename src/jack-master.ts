@@ -56,17 +56,58 @@ export const JackMaster = (team: Team, backlogProject: BacklogProject): JackMast
     return tasks.filter(t => !t.done);
   };
 
-  const fetchLastestInPostedOrder = async (channel: TextChannel | ThreadChannel): Promise<Message[]> => {
+  const fetchLastestMessages = async (channel: TextChannel | ThreadChannel): Promise<Message[]> => {
     const idMessagePairs = await channel.messages.fetch({limit: 100});
-    return [...idMessagePairs].reverse()
-        .map(([_, message]) => message);
+    return [...idMessagePairs].map(([_, message]) => message);
   };
 
   const listTasks = async (channel: TextChannel | ThreadChannel): Promise<readonly Task[]> => {
     try {
-      return (await fetchLastestInPostedOrder(channel))
-          .filter(hasTodoReaction)
-          .map(messageToTask)
+      const taskMessages = (await fetchLastestMessages(channel))
+          .filter(hasTodoReaction);
+      const subtaskMessagesByParentId = new Map<string, Message[]>();
+      const recordIfParentTaskExists = async (target: Message, current: Message, olderMessageIds: string[]) => {
+        const parentId = current.reference?.messageId;
+        if (!parentId) {
+          return;
+        }
+        const parentIsTaskMessage = olderMessageIds.includes(parentId);
+        if (parentIsTaskMessage) {
+          const subtasks = subtaskMessagesByParentId.get(parentId) ?? new Array<Message>();
+          subtaskMessagesByParentId.set(parentId, [...subtasks, target]);
+          return
+        }
+        // If parent message is not a task (has no TO DO stamp), keep looking parent
+        // recursively since it may be a subtask found through continuous conversation.
+        const parentMessage = await current.fetchReference();
+        recordIfParentTaskExists(target, parentMessage, olderMessageIds);
+      };
+
+      taskMessages.forEach((m, index, messages) => {
+        const olderMessageIds = messages.slice(index + 1).map(m => m.id);
+        recordIfParentTaskExists(m, m, olderMessageIds);
+      });
+
+      const subtaskIds = Array.from(subtaskMessagesByParentId.values())
+          .flatMap(subtasks => subtasks)
+          .map(m => m.id);
+      const isTopLevelTask = (message: Message): boolean => !subtaskIds.includes(message.id);
+
+      const messageToTask = (message: Message): Task => {
+        const subtasks = subtaskMessagesByParentId.get(message.id)
+            ?.map(messageToTask) ?? [];
+        return {
+          id: message.id,
+          content: message.content,
+          url: message.url,
+          done: hasDoneReaction(message),
+          subtasks,
+        };
+      };
+
+      return taskMessages
+          .filter(isTopLevelTask)
+          .map(messageToTask);
     } catch (e) {
       console.error(e);
       return [];
@@ -205,11 +246,3 @@ const reactionCheckerFor = (id: string): ReactionChecker => (message: Message): 
     !!message.reactions?.cache.find((r: MessageReaction) => r.emoji.id === id);
 const hasTodoReaction = reactionCheckerFor('908654943441936425');
 const hasDoneReaction = reactionCheckerFor('905717622421729301');
-
-const messageToTask = (message: Message): Task => ({
-  id: message.id,
-  content: message.content,
-  url: message.url,
-  done: hasDoneReaction(message),
-  subtasks: [],
-});

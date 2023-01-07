@@ -96,11 +96,21 @@ const formatTasks = (tasks) => {
                 fields: [{
                         name: 'Tasks',
                         value: tasks
-                            .map((t, index) => `${t.done ? '**済** ' : ''} ${index + 1}. [${t.content}](${t.url})`)
-                            .join('\n'),
+                            .map((t, index) => formatTask(t, index))
+                            .join(''),
                     }]
             }],
     };
+};
+const formatTask = (task, index, parentTaskNumber = '', indentCount = 0) => {
+    const indent = '- '.repeat(indentCount); // we cannot use spaces since it is trimmed
+    const doneMarker = task.done ? '**済** ' : '';
+    const taskNumber = (parentTaskNumber ? parentTaskNumber + '-' : '') + (index + 1);
+    const messageLink = `[${task.done ? strike(task.content) : task.content}](${task.url})`;
+    const thisTask = `${indent} ${taskNumber}. ${doneMarker} ${messageLink}\n`;
+    return thisTask + task.subtasks
+        .map((t, index) => formatTask(t, index, taskNumber, indentCount + 1))
+        .join('');
 };
 const orderCommand = {
     execute: master => master.order(),
@@ -165,6 +175,7 @@ const groupBy = (array, getGroupKey) => {
     }, new Map());
 };
 const removeMention = (message) => message.replace(/^<[^>]+>\s/, '');
+const strike = (text) => `~~${text}~~`;
 client.on('messageCreate', (message) => __awaiter(void 0, void 0, void 0, function* () {
     if (!message.mentions.has(client.user, { ignoreEveryone: true, ignoreRoles: true })) {
         return;

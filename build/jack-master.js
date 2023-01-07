@@ -24,15 +24,53 @@ export const JackMaster = (team, backlogProject) => {
         const tasks = yield listTasks(channel);
         return tasks.filter(t => !t.done);
     });
-    const fetchLastestInPostedOrder = (channel) => __awaiter(void 0, void 0, void 0, function* () {
+    const fetchLastestMessages = (channel) => __awaiter(void 0, void 0, void 0, function* () {
         const idMessagePairs = yield channel.messages.fetch({ limit: 100 });
-        return [...idMessagePairs].reverse()
-            .map(([_, message]) => message);
+        return [...idMessagePairs].map(([_, message]) => message);
     });
     const listTasks = (channel) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            return (yield fetchLastestInPostedOrder(channel))
-                .filter(hasTodoReaction)
+            const taskMessages = (yield fetchLastestMessages(channel))
+                .filter(hasTodoReaction);
+            const subtaskMessagesByParentId = new Map();
+            const recordIfParentTaskExists = (target, current, olderMessageIds) => __awaiter(void 0, void 0, void 0, function* () {
+                var _a, _b;
+                const parentId = (_a = current.reference) === null || _a === void 0 ? void 0 : _a.messageId;
+                if (!parentId) {
+                    return;
+                }
+                const parentIsTaskMessage = olderMessageIds.includes(parentId);
+                if (parentIsTaskMessage) {
+                    const subtasks = (_b = subtaskMessagesByParentId.get(parentId)) !== null && _b !== void 0 ? _b : new Array();
+                    subtaskMessagesByParentId.set(parentId, [...subtasks, target]);
+                    return;
+                }
+                // If parent message is not a task (has no TO DO stamp), keep looking parent
+                // recursively since it may be a subtask found through continuous conversation.
+                const parentMessage = yield current.fetchReference();
+                recordIfParentTaskExists(target, parentMessage, olderMessageIds);
+            });
+            taskMessages.forEach((m, index, messages) => {
+                const olderMessageIds = messages.slice(index + 1).map(m => m.id);
+                recordIfParentTaskExists(m, m, olderMessageIds);
+            });
+            const subtaskIds = Array.from(subtaskMessagesByParentId.values())
+                .flatMap(subtasks => subtasks)
+                .map(m => m.id);
+            const isTopLevelTask = (message) => !subtaskIds.includes(message.id);
+            const messageToTask = (message) => {
+                var _a, _b;
+                const subtasks = (_b = (_a = subtaskMessagesByParentId.get(message.id)) === null || _a === void 0 ? void 0 : _a.map(messageToTask)) !== null && _b !== void 0 ? _b : [];
+                return {
+                    id: message.id,
+                    content: message.content,
+                    url: message.url,
+                    done: hasDoneReaction(message),
+                    subtasks,
+                };
+            };
+            return taskMessages
+                .filter(isTopLevelTask)
                 .map(messageToTask);
         }
         catch (e) {
@@ -131,11 +169,4 @@ const isDefined = (value) => value !== undefined;
 const reactionCheckerFor = (id) => (message) => { var _a; return !!((_a = message.reactions) === null || _a === void 0 ? void 0 : _a.cache.find((r) => r.emoji.id === id)); };
 const hasTodoReaction = reactionCheckerFor('908654943441936425');
 const hasDoneReaction = reactionCheckerFor('905717622421729301');
-const messageToTask = (message) => ({
-    id: message.id,
-    content: message.content,
-    url: message.url,
-    done: hasDoneReaction(message),
-    subtasks: [],
-});
 //# sourceMappingURL=jack-master.js.map

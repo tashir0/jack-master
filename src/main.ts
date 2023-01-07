@@ -107,11 +107,22 @@ const formatTasks = (tasks: readonly Task[]): MessageOptions => {
       fields: [{
         name: 'Tasks',
         value: tasks
-            .map((t, index) => `${t.done ? '**済** ':''} ${index + 1}. [${t.content}](${t.url})`)
-            .join('\n'),
+            .map((t, index) => formatTask(t, index))
+            .join(''),
       }]
     }],
   }
+};
+
+const formatTask = (task: Task, index: number, parentTaskNumber = '', indentCount = 0): string => {
+  const indent = '- '.repeat(indentCount); // we cannot use spaces since it is trimmed
+  const doneMarker = task.done ? '**済** ' : '';
+  const taskNumber = (parentTaskNumber ? parentTaskNumber + '-' : '') + (index + 1);
+  const messageLink = `[${task.done ? strike(task.content) : task.content}](${task.url})`;
+  const thisTask = `${indent} ${taskNumber}. ${doneMarker} ${messageLink}\n`;
+  return thisTask + task.subtasks
+      .map((t, index) => formatTask(t, index, taskNumber, indentCount + 1))
+      .join('');
 };
 
 type  Command<R> = {
@@ -189,6 +200,7 @@ const groupBy = <T>(array: T[], getGroupKey: (element: T) => string): Map<string
 };
 
 const removeMention = (message: string) => message.replace(/^<[^>]+>\s/, '');
+const strike = (text: string) => `~~${text}~~`;
 
 client.on('messageCreate', async message => {
   if (!message.mentions.has(client.user!, {ignoreEveryone: true, ignoreRoles: true})) {
