@@ -59,8 +59,8 @@ export const JackMaster = (team, backlogProject) => {
                 .map(m => m.id);
             const isTopLevelTask = (message) => !subtaskIds.includes(message.id);
             const messageToTask = (message) => {
-                var _a, _b;
-                const subtasks = (_b = (_a = subtaskMessagesByParentId.get(message.id)) === null || _a === void 0 ? void 0 : _a.map(messageToTask)) !== null && _b !== void 0 ? _b : [];
+                var _a, _b, _c;
+                const subtasks = (_c = (_b = (_a = subtaskMessagesByParentId.get(message.id)) === null || _a === void 0 ? void 0 : _a.sort(byTimestamp)) === null || _b === void 0 ? void 0 : _b.map(messageToTask)) !== null && _c !== void 0 ? _c : [];
                 return {
                     id: message.id,
                     content: message.content,
@@ -71,6 +71,7 @@ export const JackMaster = (team, backlogProject) => {
             };
             return taskMessages
                 .filter(isTopLevelTask)
+                .sort(byTimestamp)
                 .map(messageToTask);
         }
         catch (e) {
@@ -169,4 +170,5 @@ const isDefined = (value) => value !== undefined;
 const reactionCheckerFor = (id) => (message) => { var _a; return !!((_a = message.reactions) === null || _a === void 0 ? void 0 : _a.cache.find((r) => r.emoji.id === id)); };
 const hasTodoReaction = reactionCheckerFor('908654943441936425');
 const hasDoneReaction = reactionCheckerFor('905717622421729301');
+const byTimestamp = (m1, m2) => Number(m1.id) - Number(m2.id);
 //# sourceMappingURL=jack-master.js.map

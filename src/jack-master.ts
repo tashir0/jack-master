@@ -95,6 +95,7 @@ export const JackMaster = (team: Team, backlogProject: BacklogProject): JackMast
 
       const messageToTask = (message: Message): Task => {
         const subtasks = subtaskMessagesByParentId.get(message.id)
+            ?.sort(byTimestamp)
             ?.map(messageToTask) ?? [];
         return {
           id: message.id,
@@ -107,6 +108,7 @@ export const JackMaster = (team: Team, backlogProject: BacklogProject): JackMast
 
       return taskMessages
           .filter(isTopLevelTask)
+          .sort(byTimestamp)
           .map(messageToTask);
     } catch (e) {
       console.error(e);
@@ -246,3 +248,5 @@ const reactionCheckerFor = (id: string): ReactionChecker => (message: Message): 
     !!message.reactions?.cache.find((r: MessageReaction) => r.emoji.id === id);
 const hasTodoReaction = reactionCheckerFor('908654943441936425');
 const hasDoneReaction = reactionCheckerFor('905717622421729301');
+
+const byTimestamp = (m1: Message, m2: Message) => Number(m1.id) - Number(m2.id);
