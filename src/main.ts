@@ -19,16 +19,16 @@ const intents = new Intents([
 const client = new Client({intents});
 
 client.on('ready', () => {
-  console.log('bot is ready!');
   const user = client.user;
   if (!user) {
     throw new Error('Discord client is not logged in');
   }
   user.setPresence({activities: [{name: config.projectName}]});
+  console.log('bot is ready!');
 });
 
 client.on('error', (e) => {
-  console.error(`${e.name}: ${e.message}`);
+  console.log(`${e.name}: ${e.message}`);
 });
 
 const backlogProject = createBacklogProject(
