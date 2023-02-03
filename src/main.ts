@@ -1,8 +1,7 @@
 import {
   Client, EmbedField,
-  Intents,
-  Message,
-  MessageOptions,
+  GatewayIntentBits, IntentsBitField,
+  Message, MessageCreateOptions,
   MessagePayload,
   TextChannel,
   ThreadChannel
@@ -11,10 +10,10 @@ import {config, Member, Team} from "./config";
 import {JackMaster, MeetingRoles, OpenPullRequest, Task} from "./jack-master";
 import {createBacklogProject} from "./backlog";
 
-const intents = new Intents([
-  Intents.FLAGS.GUILDS,
-  Intents.FLAGS.GUILD_MESSAGES,
-  Intents.FLAGS.DIRECT_MESSAGES
+const intents = new IntentsBitField([
+  GatewayIntentBits.Guilds,
+  GatewayIntentBits.GuildMessages,
+  GatewayIntentBits.DirectMessages,
 ]);
 const client = new Client({intents});
 
@@ -39,7 +38,7 @@ const backlogProject = createBacklogProject(
 
 const masters = config.teams.map((team: Team) => JackMaster(team, backlogProject));
 
-const formatPullRequests = (pullRequests: OpenPullRequest[]): MessageOptions => {
+const formatPullRequests = (pullRequests: OpenPullRequest[]): MessageCreateOptions => {
   // console.debug(JSON.stringify(pullRequests, null, '\t'));
   if (pullRequests.length === 0) {
     return {
@@ -72,7 +71,7 @@ const formatPullRequests = (pullRequests: OpenPullRequest[]): MessageOptions => 
   return result;
 };
 
-const formatTodos = (todos: readonly Task[]): MessageOptions => {
+const formatTodos = (todos: readonly Task[]): MessageCreateOptions => {
   if (todos.length === 0) {
     return {
       embeds: [{
@@ -93,7 +92,7 @@ const formatTodos = (todos: readonly Task[]): MessageOptions => {
   }
 };
 
-const formatTasks = (tasks: readonly Task[]): MessageOptions => {
+const formatTasks = (tasks: readonly Task[]): MessageCreateOptions => {
   const description = tasks.length === 0 ? 'No tasks found in this channel' : undefined;
   const fields = tasks.flatMap((t, index) => formatTaskToFields(t, index));
   return {
@@ -124,7 +123,7 @@ const formatTaskToFields = (task: Task, index: number, parentTaskNumber = ''): E
 
 type  Command<R> = {
   execute: (master: JackMaster, message: Message) => R | Promise<R>,
-  format: (result: R) => string | MessageOptions,
+  format: (result: R) => string | MessageCreateOptions,
 };
 
 const orderCommand: Command<readonly Member[]> = {

@@ -7,14 +7,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { Client, Intents } from 'discord.js';
+import { Client, GatewayIntentBits, IntentsBitField } from 'discord.js';
 import { config } from "./config";
 import { JackMaster } from "./jack-master";
 import { createBacklogProject } from "./backlog";
-const intents = new Intents([
-    Intents.FLAGS.GUILDS,
-    Intents.FLAGS.GUILD_MESSAGES,
-    Intents.FLAGS.DIRECT_MESSAGES
+const intents = new IntentsBitField([
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.DirectMessages,
 ]);
 const client = new Client({ intents });
 client.on('ready', () => {
