@@ -8,7 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { Client, GatewayIntentBits, IntentsBitField, Partials } from 'discord.js';
-import { config } from "./config";
+import { config, logger } from "./config";
 import { JackMaster } from "./jack-master";
 import { createBacklogProject } from "./backlog";
 const intents = new IntentsBitField([
@@ -24,7 +24,7 @@ client.on('ready', () => {
         throw new Error('Discord client is not logged in');
     }
     user.setPresence({ activities: [{ name: config.projectName }] });
-    console.log('bot is ready!');
+    logger.info('bot is ready!');
 });
 client.on('error', (e) => {
     console.log(`${e.name}: ${e.message}`);

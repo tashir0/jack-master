@@ -6,7 +6,7 @@ import {
   TextChannel,
   ThreadChannel
 } from 'discord.js';
-import {config, Member, Team} from "./config";
+import {config, logger, Member, Team} from "./config";
 import {JackMaster, MeetingRoles, OpenPullRequest, Task} from "./jack-master";
 import {createBacklogProject} from "./backlog";
 
@@ -24,7 +24,7 @@ client.on('ready', () => {
     throw new Error('Discord client is not logged in');
   }
   user.setPresence({activities: [{name: config.projectName}]});
-  console.log('bot is ready!');
+  logger.info('bot is ready!');
 });
 
 client.on('error', (e) => {

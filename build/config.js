@@ -17,6 +17,16 @@ export const config = Object.freeze({
     teams: Object.freeze(JSON.parse(mandatoryEnv('TEAMS'))),
     backlogHostName: mandatoryEnv('BACKLOG_HOST_NAME'),
     backlogApiKey: mandatoryEnv('BACKLOG_API_KEY'),
+    // 0: INFO, 1: DEBUG
     logLevel: optionalNumberEnv('LOG_LEVEL', 0)
 });
+const LogLevel = {
+    INFO: 0,
+    DEBUG: 1,
+};
+const timestamp = () => new Date().toLocaleString('ja-JP');
+export const logger = {
+    info: (message) => console.log(`${timestamp()} [INFO] ${message}`),
+    debug: (message) => config.logLevel >= LogLevel.DEBUG && console.log(`${timestamp()} [DEBUG] ${message}`)
+};
 //# sourceMappingURL=config.js.map
