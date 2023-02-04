@@ -27,12 +27,11 @@ client.on('ready', () => {
     logger.info('bot is ready!');
 });
 client.on('error', (e) => {
-    console.log(`${e.name}: ${e.message}`);
+    logger.error(`${e.name}: ${e.message}`);
 });
 const backlogProject = createBacklogProject(config.backlogHostName, config.projectName, config.backlogApiKey);
 const masters = config.teams.map((team) => JackMaster(team, backlogProject));
 const formatPullRequests = (pullRequests) => {
-    // console.debug(JSON.stringify(pullRequests, null, '\t'));
     if (pullRequests.length === 0) {
         return {
             embeds: [{
@@ -60,7 +59,6 @@ const formatPullRequests = (pullRequests) => {
                 fields,
             }],
     };
-    // console.debug(JSON.stringify(result, null, '\t'));
     return result;
 };
 const formatTodos = (todos) => {
@@ -175,7 +173,7 @@ client.on('messageCreate', (message) => __awaiter(void 0, void 0, void 0, functi
     if (!message.mentions.has(client.user, { ignoreEveryone: true, ignoreRoles: true })) {
         return;
     }
-    console.log(message.content);
+    logger.debug(message.content);
     const cleanContent = removeMention(message.content.trim());
     const firstWord = cleanContent.split(' ')[0];
     const command = commandRegistry.get(firstWord);
@@ -187,8 +185,8 @@ client.on('messageCreate', (message) => __awaiter(void 0, void 0, void 0, functi
             message.channel.send(response);
         }
         catch (e) {
-            console.error(e);
-            message.channel.send(`Sorry something wend wrong. Please contact administrator.`);
+            logger.error(e); // FIXME
+            message.channel.send(`Sorry something went wrong. Please contact administrator.`);
         }
     }
     else {

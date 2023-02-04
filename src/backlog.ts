@@ -1,4 +1,5 @@
 import fetch from "node-fetch";
+import {logger} from "./config";
 
 const sleep = (millisecs: number) =>
     (new Promise((resolve) => global.setTimeout(resolve, millisecs)));
@@ -115,7 +116,7 @@ const fetchAsJson = async (url: string) => {
   const response = await fetch(url);
   const text = await response.text();
   const json = JSON.parse(text);
-  // console.debug(`${new Date()} ${url}\n${JSON.stringify(json, null, "\t")}`);
+  logger.debug(`${url}\n${JSON.stringify(json, null, "\t")}`);
   return json;
 };
 

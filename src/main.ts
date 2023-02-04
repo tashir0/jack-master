@@ -28,7 +28,7 @@ client.on('ready', () => {
 });
 
 client.on('error', (e) => {
-  console.log(`${e.name}: ${e.message}`);
+  logger.error(`${e.name}: ${e.message}`);
 });
 
 const backlogProject = createBacklogProject(
@@ -40,7 +40,6 @@ const backlogProject = createBacklogProject(
 const masters = config.teams.map((team: Team) => JackMaster(team, backlogProject));
 
 const formatPullRequests = (pullRequests: OpenPullRequest[]): MessageCreateOptions => {
-  // console.debug(JSON.stringify(pullRequests, null, '\t'));
   if (pullRequests.length === 0) {
     return {
       embeds: [{
@@ -68,7 +67,6 @@ const formatPullRequests = (pullRequests: OpenPullRequest[]): MessageCreateOptio
       fields,
     }],
   };
-  // console.debug(JSON.stringify(result, null, '\t'));
   return result;
 };
 
@@ -204,7 +202,7 @@ client.on('messageCreate', async message => {
     return;
   }
 
-  console.log(message.content);
+  logger.debug(message.content);
   const cleanContent = removeMention(message.content.trim());
   const firstWord = cleanContent.split(' ')[0];
 
@@ -216,8 +214,8 @@ client.on('messageCreate', async message => {
       const response = command.format(result);
       message.channel.send(response);
     } catch (e) {
-      console.error(e);
-      message.channel.send(`Sorry something wend wrong. Please contact administrator.`)
+      logger.error(e as string); // FIXME
+      message.channel.send(`Sorry something went wrong. Please contact administrator.`)
     }
   } else {
     message.channel.send(

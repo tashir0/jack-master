@@ -4,7 +4,7 @@ const mandatoryEnv = (key) => {
     if (isConfigured(value)) {
         return value;
     }
-    console.log(`Please set ${key}. See README.md for the details.`);
+    logger.error(`Please set ${key}. See README.md for the details.`);
     process.exit(0);
 };
 const optionalNumberEnv = (key, defaultValue) => {
@@ -27,6 +27,9 @@ const LogLevel = {
 const timestamp = () => new Date().toLocaleString('ja-JP');
 export const logger = {
     info: (message) => console.log(`${timestamp()} [INFO] ${message}`),
-    debug: (message) => config.logLevel >= LogLevel.DEBUG && console.log(`${timestamp()} [DEBUG] ${message}`)
+    error: (message) => console.log(`${timestamp()} [ERROR] ${message}`),
+    debug: (message) => {
+        config.logLevel >= LogLevel.DEBUG && console.log(`${timestamp()} [DEBUG] ${message}`);
+    }
 };
 //# sourceMappingURL=config.js.map

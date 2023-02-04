@@ -8,6 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import fetch from "node-fetch";
+import { logger } from "./config";
 const sleep = (millisecs) => (new Promise((resolve) => global.setTimeout(resolve, millisecs)));
 export const createBacklogProject = (hostName, projectName, apiKey) => {
     const apiBaseUrl = `https://${hostName}/api/v2`;
@@ -53,7 +54,7 @@ const fetchAsJson = (url) => __awaiter(void 0, void 0, void 0, function* () {
     const response = yield fetch(url);
     const text = yield response.text();
     const json = JSON.parse(text);
-    // console.debug(`${new Date()} ${url}\n${JSON.stringify(json, null, "\t")}`);
+    logger.debug(`${url}\n${JSON.stringify(json, null, "\t")}`);
     return json;
 });
 const toRepository = (backlogRepository) => ({

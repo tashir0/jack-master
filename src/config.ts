@@ -5,7 +5,7 @@ const mandatoryEnv = (key: EnvKey): string => {
   if (isConfigured(value)) {
     return value;
   }
-  console.log(`Please set ${key}. See README.md for the details.`);
+  logger.error(`Please set ${key}. See README.md for the details.`);
   process.exit(0);
 };
 
