@@ -2,7 +2,7 @@ import {
   Client, EmbedField,
   GatewayIntentBits, IntentsBitField,
   Message, MessageCreateOptions,
-  MessagePayload,
+  MessagePayload, Partials,
   TextChannel,
   ThreadChannel
 } from 'discord.js';
@@ -15,7 +15,8 @@ const intents = new IntentsBitField([
   GatewayIntentBits.GuildMessages,
   GatewayIntentBits.DirectMessages,
 ]);
-const client = new Client({intents});
+const partials = [Partials.Channel]; // To receive DM. See https://discordjs.guide/additional-info/changes-in-v13.html#dm-channels
+const client = new Client({intents, partials});
 
 client.on('ready', () => {
   const user = client.user;
@@ -48,19 +49,19 @@ const formatPullRequests = (pullRequests: OpenPullRequest[]): MessageCreateOptio
       }],
     };
   }
-  const groupedByTicket =  groupBy(pullRequests, (pr: OpenPullRequest) => (pr.ticketNumber ? String(pr.ticketNumber) : 'No ticket'));
+  const groupedByTicket = groupBy(pullRequests, (pr: OpenPullRequest) => (pr.ticketNumber ? String(pr.ticketNumber) : 'No ticket'));
   const starPresentersToCsv = (presenters: Member[]) => presenters.map(p => p.name).join(', ') || 'no one';
   const fields = Array.from(groupedByTicket.entries())
-  .flatMap(([ ticketNumber, pullRequests ]) => {
-    return pullRequests.map((pr: OpenPullRequest) => {
-      const shortenedTitle = pr.title.length < 28 ? pr.title : `${pr.title.substring(0, 28)}...`; // To avoid line break
-      const notification =  pr.lastNotifier ? `, last notified by ${pr.lastNotifier.name}` : ` not notified`;
-      return {
-        name: `${ticketNumber} ${shortenedTitle}`,
-        value: `${pr.repositoryName} [PR#${pr.requestNumber}](${pr.url}) \nrequested by ${pr.createdUser.name}${notification}, star presented by ${starPresentersToCsv(pr.starPresenters)}`
-      };
-    });
-  });
+      .flatMap(([ticketNumber, pullRequests]) => {
+        return pullRequests.map((pr: OpenPullRequest) => {
+          const shortenedTitle = pr.title.length < 28 ? pr.title : `${pr.title.substring(0, 28)}...`; // To avoid line break
+          const notification = pr.lastNotifier ? `, last notified by ${pr.lastNotifier.name}` : ` not notified`;
+          return {
+            name: `${ticketNumber} ${shortenedTitle}`,
+            value: `${pr.repositoryName} [PR#${pr.requestNumber}](${pr.url}) \nrequested by ${pr.createdUser.name}${notification}, star presented by ${starPresentersToCsv(pr.starPresenters)}`
+          };
+        });
+      });
   const result = {
     embeds: [{
       title: 'Open pull requests',
@@ -129,8 +130,8 @@ type  Command<R> = {
 const orderCommand: Command<readonly Member[]> = {
   execute: master => master.order(),
   format: members => members
-  .map((member, index) => `${index + 1}: ${member.name}`)
-  .join('\n')
+      .map((member, index) => `${index + 1}: ${member.name}`)
+      .join('\n')
 };
 
 const meetingCommand: Command<MeetingRoles> = {
@@ -158,12 +159,12 @@ const starsCommand: Command<OpenPullRequest[]> = {
 const pairCommand: Command<Member[][]> = {
   execute: master => master.pair(),
   format: (pairs) => pairs
-  .map((pair, index) => {
-    const pairNumber = index + 1;
-    const pairedMembers = pair[0].name + (pair.length === 2 ? ` & ${pair[1].name}` : '')
-    return `${pairNumber}: ${pairedMembers}`;
-  })
-  .join('\n')
+      .map((pair, index) => {
+        const pairNumber = index + 1;
+        const pairedMembers = pair[0].name + (pair.length === 2 ? ` & ${pair[1].name}` : '')
+        return `${pairNumber}: ${pairedMembers}`;
+      })
+      .join('\n')
 };
 
 const todoCommand: Command<readonly Task[]> = {

@@ -7,7 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { Client, GatewayIntentBits, IntentsBitField } from 'discord.js';
+import { Client, GatewayIntentBits, IntentsBitField, Partials } from 'discord.js';
 import { config } from "./config";
 import { JackMaster } from "./jack-master";
 import { createBacklogProject } from "./backlog";
@@ -16,7 +16,8 @@ const intents = new IntentsBitField([
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.DirectMessages,
 ]);
-const client = new Client({ intents });
+const partials = [Partials.Channel]; // To receive DM. See https://discordjs.guide/additional-info/changes-in-v13.html#dm-channels
+const client = new Client({ intents, partials });
 client.on('ready', () => {
     const user = client.user;
     if (!user) {
